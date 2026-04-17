@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OECD Accession Tracking Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f4f6f9;
+  --surface:  #ffffff;
+  --sf2:      #f0f4f8;
+  --border:   #dde3ec;
+  --navy:     #1a3a6b;
+  --navym:    #2563a8;
+  --green:    #16a34a;
+  --green-lt: #f0fdf4;
+  --green-bd: #86efac;
+  --amber:    #d97706;
+  --amber-lt: #fffbeb;
+  --amber-bd: #fcd34d;
+  --gray:     #6b7280;
+  --gray-lt:  #f9fafb;
+  --gray-bd:  #d1d5db;
+  --text:     #111827;
+  --textm:    #374151;
+  --textd:    #6b7280;
+  --textw:    #9ca3af;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); font-size:14px; line-height:1.6; }
+
+/* HEADER */
+header { background:var(--navy); padding:0 36px; display:flex; align-items:center; justify-content:space-between; height:64px; position:sticky; top:0; z-index:100; }
+.logo { display:flex; align-items:center; gap:14px; }
+.logo-badge { width:38px; height:38px; background:white; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; color:var(--navy); }
+.logo-text h1 { font-size:16px; font-weight:700; color:white; line-height:1.2; }
+.logo-text p { font-size:11px; color:rgba(255,255,255,0.5); }
+.header-meta { display:flex; align-items:center; gap:10px; font-size:12px; color:rgba(255,255,255,0.6); }
+.live-dot { width:7px; height:7px; background:#4ade80; border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+.main { padding:28px 36px; max-width:1400px; margin:0 auto; }
+
+/* SECTION HEADING */
+.sh { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--textd); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.sh::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* SUMMARY CARDS */
+.sum-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
+.sum-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 22px; border-top:3px solid transparent; }
+.sum-card.cn { border-top-color:var(--navy); }
+.sum-card.cb { border-top-color:var(--navym); }
+.sum-card.cg { border-top-color:var(--green); }
+.sum-card.ca { border-top-color:var(--amber); }
+.slbl { font-size:11px; font-weight:600; color:var(--textd); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+.sval { font-size:30px; font-weight:800; color:var(--text); line-height:1; margin-bottom:4px; }
+.ssub { font-size:12px; color:var(--textd); }
+
+/* PROGRESS PANEL */
+.prog-panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px 26px; margin-bottom:28px; }
+.prog-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:20px; }
+
+/* QUESTIONNAIRE 3-STATE BAR */
+.q-section { margin-bottom:24px; }
+.q-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.q-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--textm); }
+.q-counts { font-size:12px; color:var(--textd); display:flex; gap:14px; }
+.q-count-item { display:flex; align-items:center; gap:5px; }
+.q-dot { width:9px; height:9px; border-radius:50%; }
+
+/* Segmented bar */
+.seg-track { height:12px; background:var(--sf2); border-radius:99px; border:1px solid var(--border); overflow:hidden; display:flex; }
+.seg-fill { height:100%; transition:width 0.7s ease; }
+.seg-green  { background:var(--green); }
+.seg-amber  { background:#f59e0b; }
+.seg-gray   { background:#cbd5e1; }
+
+.q-legend { display:flex; gap:18px; margin-top:8px; font-size:11px; color:var(--textd); flex-wrap:wrap; }
+.ql-item { display:flex; align-items:center; gap:5px; }
+.ql-dot { width:9px; height:9px; border-radius:50%; }
+
+/* 6-MONTH TIMELINE */
+.tl-section { border-top:1px solid var(--border); padding-top:20px; }
+.tl-section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--textm); margin-bottom:4px; }
+.tl-subtitle { font-size:11px; color:var(--textd); margin-bottom:16px; }
+
+.tl-axis { position:relative; height:44px; margin:0 0 0 0; }
+.tl-line { position:absolute; top:20px; left:0; right:0; height:2px; background:var(--border); border-radius:2px; }
+.tl-today-line { position:absolute; top:6px; width:2px; background:var(--navy); border-radius:2px; height:30px; }
+.tl-today-lbl { position:absolute; top:0; font-size:9px; font-weight:700; color:var(--navy); transform:translateX(-50%); white-space:nowrap; }
+.tl-end-lbl { position:absolute; top:0; right:0; font-size:9px; color:var(--textw); }
+
+.tl-months { display:flex; margin-bottom:6px; }
+.tl-month { flex:1; text-align:center; font-size:10px; color:var(--textw); font-weight:600; padding:3px 0; border-right:1px solid var(--border); }
+.tl-month:last-child { border-right:none; }
+.tl-month.cur { color:var(--navy); background:rgba(26,58,107,0.05); border-radius:4px; }
+
+.tl-events { display:flex; flex-direction:column; gap:4px; margin-top:4px; }
+.tl-row { position:relative; height:28px; }
+.tl-event {
+  position:absolute; height:24px;
+  border-radius:5px; display:flex; align-items:center;
+  padding:0 8px; font-size:10px; font-weight:600;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  cursor:pointer; transition:opacity 0.15s;
+  max-width:220px;
+  border:1px solid transparent;
+}
+.tl-event:hover { opacity:0.85; }
+.tl-event.ff { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+.tl-event.ar { background:#fef3c7; border-color:#fcd34d; color:#92400e; }
+.tl-dot-only { position:absolute; width:10px; height:10px; border-radius:50%; top:8px; transform:translateX(-50%); cursor:pointer; }
+.tl-dot-only.ff { background:#3b82f6; border:2px solid white; box-shadow:0 0 0 1.5px #3b82f6; }
+.tl-dot-only.ar { background:#f59e0b; border:2px solid white; box-shadow:0 0 0 1.5px #f59e0b; }
+
+.tl-empty { font-size:12px; color:var(--textd); padding:12px 0; font-style:italic; }
+
+.tl-legend { display:flex; gap:16px; margin-top:10px; font-size:11px; color:var(--textd); }
+.tl-li { display:flex; align-items:center; gap:5px; }
+.tl-ld { width:10px; height:10px; border-radius:3px; }
+.tl-ld-ff { background:#3b82f6; }
+.tl-ld-ar { background:#f59e0b; }
+
+/* LEGEND BAR */
+.legend-bar { display:flex; align-items:center; gap:18px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 16px; margin-bottom:18px; font-size:12px; color:var(--textd); flex-wrap:wrap; }
+.legend-bar strong { color:var(--textm); margin-right:4px; }
+.li { display:flex; align-items:center; gap:6px; }
+.ld { width:10px; height:10px; border-radius:3px; }
+.ld-g { background:var(--green); }
+.ld-a { background:#f59e0b; }
+.ld-gr { background:var(--gray-bd); }
+
+/* CONTROLS */
+.controls { display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center; }
+.search-box { flex:1; min-width:260px; position:relative; }
+.search-box input { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 14px 9px 38px; color:var(--text); font-family:'Sarabun',sans-serif; font-size:13px; outline:none; transition:border-color 0.15s; }
+.search-box input:focus { border-color:var(--navym); }
+.search-box input::placeholder { color:var(--textw); }
+.search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--textw); }
+.filter-btn { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 14px; color:var(--textm); font-family:'Sarabun',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+.filter-btn:hover { border-color:var(--navym); color:var(--navy); }
+.filter-btn.active { background:var(--navy); border-color:var(--navy); color:white; }
+.view-toggle { display:flex; background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.vbtn { padding:9px 13px; background:none; border:none; color:var(--textd); cursor:pointer; font-size:14px; transition:all 0.15s; }
+.vbtn.active { background:var(--navy); color:white; }
+.count-tag { background:var(--navy); color:white; border-radius:99px; padding:1px 8px; font-size:10px; font-weight:600; }
+
+/* COMMITTEE GROUP */
+.committee-group { margin-bottom:32px; }
+.committee-hdr { background:var(--navy); border-radius:10px; padding:16px 22px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; transition:background 0.15s; flex-wrap:wrap; }
+.committee-hdr:hover { background:var(--navym); }
+.ch-left { display:flex; align-items:center; gap:12px; }
+.ch-icon { width:34px; height:34px; background:rgba(255,255,255,0.15); border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.ch-lbl { font-size:10px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+.ch-name { font-weight:700; font-size:14px; color:white; }
+.ch-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.ch-tag { background:rgba(255,255,255,0.15); border-radius:5px; padding:3px 9px; font-size:11px; font-weight:600; color:rgba(255,255,255,0.8); white-space:nowrap; }
+
+/* WP CARDS */
+.wp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:12px; }
+.task-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; cursor:pointer; transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s; animation:fadeUp 0.35s ease forwards; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.task-card:hover { border-color:var(--navym); box-shadow:0 4px 16px rgba(26,58,107,0.1); transform:translateY(-2px); }
+.card-hdr { padding:14px 18px 12px; border-bottom:1px solid var(--border); background:var(--sf2); }
+.card-type { font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--textw); margin-bottom:4px; }
+.card-wp { font-weight:700; font-size:13px; line-height:1.4; color:var(--text); }
+.card-body { padding:14px 18px; }
+.card-agency { font-size:12px; color:var(--navym); font-weight:600; margin-bottom:8px; display:flex; align-items:flex-start; gap:5px; }
+.card-progress { font-size:12px; color:var(--textd); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:12px; line-height:1.5; }
+.chip-row { display:flex; gap:6px; flex-wrap:wrap; }
+
+/* STATUS CHIPS — Questionnaire 3-state */
+.chip { border-radius:5px; padding:3px 8px; font-size:10px; font-weight:600; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+.chip-lbl { font-size:8.5px; font-weight:700; opacity:.6; text-transform:uppercase; }
+/* Questionnaire states */
+.chip-q-none  { background:var(--gray-lt); border:1px solid var(--gray-bd); color:var(--gray); }
+.chip-q-prog  { background:var(--amber-lt); border:1px solid var(--amber-bd); color:var(--amber); }
+.chip-q-done  { background:var(--green-lt); border:1px solid var(--green-bd); color:var(--green); }
+/* FF / AR date-based — done=green, pending=gray, na=light gray */
+.chip-done    { background:var(--green-lt); border:1px solid var(--green-bd); color:var(--green); }
+.chip-pending { background:#f1f5f9;         border:1px solid #94a3b8;         color:#475569; }
+.chip-na      { background:var(--gray-lt);  border:1px solid var(--gray-bd);  color:var(--gray); }
+
+/* TABLE */
+.table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+table { width:100%; border-collapse:collapse; }
+thead th { background:var(--sf2); padding:10px 14px; text-align:left; font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--textd); border-bottom:1px solid var(--border); white-space:nowrap; }
+tbody tr { border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:#eff6ff; }
+td { padding:10px 14px; vertical-align:middle; font-size:12px; color:var(--textm); }
+td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+.td-c { font-size:11px; font-weight:700; color:var(--navy); }
+.td-a { font-size:11px; font-weight:600; color:var(--navym); }
+
+/* MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(17,24,39,0.45); backdrop-filter:blur(3px); z-index:200; display:none; align-items:center; justify-content:center; padding:24px; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; width:100%; max-width:800px; max-height:90vh; overflow-y:auto; animation:slideUp 0.25s ease; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
+@keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.m-hdr { padding:20px 24px 18px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--navy); z-index:10; display:flex; justify-content:space-between; align-items:flex-start; }
+.m-badge { font-size:10px; font-weight:700; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; }
+.m-title { font-size:17px; font-weight:700; line-height:1.3; color:white; }
+.m-close { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:7px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:white; font-size:16px; transition:all 0.15s; flex-shrink:0; margin-left:14px; }
+.m-close:hover { background:rgba(255,255,255,0.25); }
+.m-body { padding:22px 24px; }
+.m-section { margin-bottom:20px; }
+.m-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--textd); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.m-lbl::after { content:''; flex:1; height:1px; background:var(--border); }
+.m-content { font-size:13px; line-height:1.75; color:var(--textm); }
+.m-content.hl { color:var(--text); font-weight:500; }
+.ap { display:inline-block; background:#eff6ff; border:1px solid #bfdbfe; border-radius:5px; padding:3px 9px; font-size:12px; font-weight:500; color:var(--navym); margin:2px; }
+.sp { display:inline-block; background:var(--sf2); border:1px solid var(--border); border-radius:5px; padding:3px 9px; font-size:12px; color:var(--textm); margin:2px; }
+.legal-item { background:var(--sf2); border:1px solid var(--border); border-left:3px solid var(--navy); border-radius:7px; padding:9px 13px; margin-bottom:7px; font-size:12px; color:var(--textm); }
+.legal-code { font-size:10px; font-weight:700; color:var(--navy); margin-bottom:2px; text-transform:uppercase; }
+.tl-grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.tlc { border-radius:8px; padding:12px 14px; text-align:center; border:1px solid; }
+.tlc.done    { background:var(--green-lt); border-color:var(--green-bd); }
+.tlc.pending { background:#f1f5f9;         border-color:#94a3b8; }
+.tlc.na      { background:var(--gray-lt);  border-color:var(--gray-bd); }
+.tlc-lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--textd); margin-bottom:5px; }
+.tlc-date { font-size:13px; font-weight:700; }
+.tlc.done .tlc-date    { color:var(--green); }
+.tlc.pending .tlc-date { color:#475569; }
+.tlc.na .tlc-date      { color:var(--gray); }
+.tlc-st { font-size:10px; font-weight:600; margin-top:3px; }
+.tlc.done .tlc-st    { color:var(--green); }
+.tlc.pending .tlc-st { color:#475569; }
+.tlc.na .tlc-st      { color:var(--gray); }
+/* Questionnaire 3-state in modal */
+.tlc.q-none { background:var(--gray-lt);  border-color:var(--gray-bd); }
+.tlc.q-prog { background:var(--amber-lt); border-color:var(--amber-bd); }
+.tlc.q-done2{ background:var(--green-lt); border-color:var(--green-bd); }
+.tlc.q-none .tlc-date { color:var(--gray); }
+.tlc.q-prog .tlc-date { color:var(--amber); }
+.tlc.q-done2 .tlc-date{ color:var(--green); }
+.tlc.q-none .tlc-st { color:var(--gray); }
+.tlc.q-prog .tlc-st { color:var(--amber); }
+.tlc.q-done2 .tlc-st{ color:var(--green); }
+
+.notes-box { background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px 14px; font-size:12px; color:var(--textm); line-height:1.7; }
+.print-btn { background:var(--navy); border:none; border-radius:8px; padding:10px 20px; color:white; font-family:'Sarabun',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:background 0.15s; }
+.print-btn:hover { background:var(--navym); }
+.m-actions { padding:14px 24px 18px; border-top:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.empty-state { text-align:center; padding:52px 20px; color:var(--textd); }
+
+@media(max-width:900px) {
+  .sum-row { grid-template-columns:repeat(2,1fr); }
+  header,.main { padding-left:16px; padding-right:16px; }
+  .tl-grid3 { grid-template-columns:repeat(2,1fr); }
+  .wp-grid { grid-template-columns:1fr; }
+  .committee-hdr { flex-direction:column; align-items:flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-badge">OECD</div>
+    <div class="logo-text">
+      <h1>Accession Tracking Dashboard</h1>
+      <p>ระบบติดตามการขับเคลื่อนการเข้าเป็นสมาชิก OECD - ประเทศไทย</p>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="live-dot"></div>
+    <span id="currentDate"></span>
+    <span style="background:rgba(255,255,255,0.1);border-radius:5px;padding:3px 9px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:0.5px">NESDC</span>
+  </div>
+</header>
+
+<div class="main">
+
+  <div class="sum-row" id="sumRow"></div>
+
+  <div class="sh">ภาพรวมความคืบหน้า <span style="font-weight:400;text-transform:none;letter-spacing:0">Progress Overview</span></div>
+
+  <div class="prog-panel">
+    <div class="prog-title">สถานะกรอบเวลาการประเมิน</div>
+
+    <!-- Questionnaire 3-state bar -->
+    <div class="q-section">
+      <div class="q-header">
+        <div class="q-title">Questionnaire</div>
+        <div class="q-counts" id="qCounts"></div>
+      </div>
+      <div class="seg-track" id="qBar"></div>
+      <div class="q-legend">
+        <div class="ql-item"><div class="ql-dot" style="background:var(--green)"></div> ส่งแล้ว (Submitted)</div>
+        <div class="ql-item"><div class="ql-dot" style="background:#f59e0b"></div> กำลังจัดทำ (In Progress)</div>
+        <div class="ql-item"><div class="ql-dot" style="background:#cbd5e1"></div> ยังไม่ได้รับ (Not Received)</div>
+      </div>
+    </div>
+
+    <!-- 6-month ahead timeline for FF and AR -->
+    <div class="tl-section">
+      <div class="tl-section-title">Fact-finding Mission & Accession Review — ตาราง 6 เดือนข้างหน้า</div>
+      <div class="tl-subtitle" id="tlSubtitle"></div>
+      <div id="tlMonths" class="tl-months"></div>
+      <div id="tlAxisWrap"></div>
+      <div id="tlEvents" class="tl-events"></div>
+      <div class="tl-legend">
+        <div class="tl-li"><div class="tl-ld tl-ld-ff"></div> Fact-finding Mission</div>
+        <div class="tl-li"><div class="tl-ld tl-ld-ar"></div> Accession Review</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend-bar">
+    <strong>สถานะ Questionnaire:</strong>
+    <div class="li"><div class="ld ld-g"></div> ส่งแล้ว</div>
+    <div class="li"><div class="ld ld-a"></div> กำลังจัดทำ</div>
+    <div class="li"><div class="ld ld-gr"></div> ยังไม่ได้รับ</div>
+    &nbsp;|&nbsp;
+    <strong>FF / AR:</strong>
+    <div class="li"><div class="ld ld-g"></div> ผ่านกำหนดแล้ว</div>
+    <div class="li"><div class="ld" style="background:#94a3b8"></div> ยังไม่ถึงกำหนด</div>
+  </div>
+
+  <div class="controls">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="ค้นหา คณะกรรมการ หน่วยงาน หรือคณะทำงาน..." oninput="applyFilters()">
+    </div>
+    <div id="filterBtns" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    <div class="view-toggle">
+      <button class="vbtn active" id="btnGrid"  onclick="setView('grid')"  title="Cards">⊞</button>
+      <button class="vbtn"        id="btnTable" onclick="setView('table')" title="Table">☰</button>
+    </div>
+  </div>
+
+  <div class="sh">คณะกรรมการและคณะทำงาน <span class="count-tag" id="visCount">0</span></div>
+
+  <div id="mainContent"></div>
+
+  <div id="tableWrap" class="table-wrap" style="display:none">
+    <table>
+      <thead>
+        <tr>
+          <th>ประเภท</th><th>คณะกรรมการ</th><th>คณะทำงาน / รายการ</th>
+          <th>หน่วยงานหลัก</th><th>Questionnaire</th><th>Fact-finding</th><th>Accession Review</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" style="position:fixed;inset:0;background:rgba(244,246,249,0.92);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+  <div style="width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+  <div style="font-size:14px;font-weight:600;color:var(--navy)">กำลังโหลดข้อมูลจาก Google Sheets…</div>
+  <div id="loadingMsg" style="font-size:12px;color:var(--textd)">กรุณารอสักครู่</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="m-hdr">
+      <div style="flex:1">
+        <div class="m-badge" id="mBadge"></div>
+        <div class="m-title" id="mTitle"></div>
+      </div>
+      <button class="m-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="m-body" id="mBody"></div>
+    <div class="m-actions">
+      <button class="print-btn" onclick="printFactSheet()">🖨 พิมพ์ Fact Sheet</button>
+      <span style="font-size:12px;color:var(--textd)">รายงานข้อมูลรายคณะทำงาน</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+   questionnaireStatus: 'none' | 'in_progress' | 'submitted'
+═══════════════════════════════════════════════════════ */
+const rawData = [
+  { id:0, type:'committee', committee:"Corporate Governance Committee (CGC)",
+    workingParty:"Corporate Governance Committee (CGC) — ระดับคณะกรรมการ",
+    agency:"สำนักงานคณะกรรมการนโยบายรัฐวิสาหกิจ กระทรวงการคลัง*\nสำนักงานคณะกรรมการกำกับหลักทรัพย์และตลาดหลักทรัพย์ (กลต.)",
+    stakeholders:"กรมพัฒนาธุรกิจการค้า กระทรวงพาณิชย์\nสำนักงานคณะกรรมการป้องกันและปราบปรามการทุจริตแห่งชาติ\nตลาดหลักทรัพย์แห่งประเทศไทย\nตลาดหลักทรัพย์ เอ็มเอไอ\nกองทุนบำเหน็จบำนาญข้าราชการ\nสภาวิชาชีพบัญชีในพระบรมราชูปถัมภ์",
+    objectives:"- ร่วมส่งเสริมประสิทธิภาพเศรษฐกิจ การเติบโตอย่างยั่งยืน และความมั่นคงทางการเงินผ่านการพัฒนานโยบายกำกับดูแลกิจการ\n- กำหนดมาตรฐานสากลด้านการกำกับดูแลกิจการและจัดทำข้อเสนอแนะที่สอดคล้องกับตราสารกฎหมาย\n- เพิ่มขีดความสามารถของผู้มีส่วนเกี่ยวข้องในการบังคับใช้ข้อกำหนดและนโยบาย\n- กำกับดูแลนโยบายกิจการรัฐวิสาหกิจให้มีความยั่งยืน โปร่งใส และมีธรรมาภิบาล",
+    legalInstruments:"OECD/LEGAL/0413 - Recommendation of the Council on Principles of Corporate Governance\nOECD/LEGAL/0414 - Recommendation of the Council on Guidelines on Corporate Governance of State-Owned Enterprises\nOECD/LEGAL/0451 - Recommendation of the Council on Guidelines on Anti-Corruption and Integrity in State-Owned Enterprises",
+    questionnaireStatus:'in_progress', questionnaireDate:"19/02/2026",
+    factFinding:"20/05/2026", accessionReview:"2027",
+    progress:"หน่วยงานรับผิดชอบหลักได้รับ Questionnaire แล้ว และอยู่ระหว่างการจัดทำข้อมูล\nคาดว่าจะเข้าสู่ขั้นตอนการประเมินครั้งแรกในช่วงไตรมาสที่ 4 ของปี 2569\nQuestionnaire มี 4 ส่วน:\n1. Self-Assessment of the OECD Principles of Corporate Governance\n2. SOE Guidelines Questionnaire\n3. Questionnaire ACI Guidelines\n4. SOE Review Data",
+    notes:"คณะกรรมการฯ ได้แจ้งรายชื่อผู้มีส่วนเกี่ยวข้องที่ไม่ใช่ภาครัฐ (Non-Governmental Stakeholders):\n1. สมาคมบริษัทจดทะเบียนไทย\n2. สมาคมส่งเสริมสถาบันกรรมการบริษัทไทย\n3. สมาคมบริษัทจัดการลงทุน\n4. สมาคมบริษัทหลักทรัพย์ไทย\n5. สมาคมตลาดตราสารหนี้ไทย" },
+
+  { id:1, type:'wp', committee:"Corporate Governance Committee (CGC)",
+    workingParty:"Working Party on State Ownership and Privatisation Practices (WP-SOE)",
+    agency:"สำนักงานคณะกรรมการนโยบายรัฐวิสาหกิจ กระทรวงการคลัง",
+    stakeholders:"สำนักงานคณะกรรมการป้องกันและปราบปรามการทุจริตแห่งชาติ",
+    objectives:"- ส่งเสริมความสัมพันธ์และการแลกเปลี่ยนข้อมูลระหว่างประเทศสมาชิกเพื่อยกระดับธรรมาภิบาลของกิจการรัฐวิสาหกิจ\n- กำกับดูแลนโยบายกิจการรัฐวิสาหกิจให้มีความยั่งยืน โปร่งใส\n- สนับสนุนการปฏิบัติตามตราสารกฎหมายที่เกี่ยวข้อง\n- ให้บริการด้านวิชาการและคำปรึกษาแก่ประเทศสมาชิก",
+    legalInstruments:"OECD/LEGAL/0451 - Recommendation of the Council on Guidelines on Anti-Corruption and Integrity in State-Owned Enterprises\nOECD/LEGAL/0414 - Recommendation of the Council on Guidelines on Corporate Governance of State-Owned Enterprises",
+    questionnaireStatus:'in_progress', questionnaireDate:"19/02/2026",
+    factFinding:"20/05/2026", accessionReview:"2027",
+    progress:"หน่วยงานรับผิดชอบหลักได้รับ Questionnaire แล้ว และอยู่ระหว่างการจัดทำข้อมูล\nคาดว่าจะเข้าสู่ขั้นตอนการประเมินครั้งแรกในช่วงไตรมาสที่ 4 ของปี 2569",
+    notes:"คณะทำงานฯ ดำเนินการประเมินทางเทคนิคพร้อมกับคณะกรรมการ และใช้ Questionnaire ชุดเดียวกัน\nSOE = รัฐวิสาหกิจ, Privatisation = การโอนกิจการของรัฐเป็นของเอกชน" },
+
+  { id:2, type:'committee', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Committee on Financial Markets (CMF) — ระดับคณะกรรมการ",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"ธนาคารแห่งประเทศไทย\nสำนักงานประกันสังคม กระทรวงแรงงาน\nกองทุนบำเหน็จบำนาญข้าราชการ\nสำนักบริหารหนี้สาธารณะ กระทรวงการคลัง",
+    objectives:"- ส่งเสริมการกำกับดูแลระบบการเงินที่มั่นคง เปิดเผย และมีประสิทธิภาพ\n- ยกระดับความโปร่งใสของตลาดการเงิน\n- ส่งเสริมการมีส่วนร่วมของสถาบันการเงินในการพัฒนาเศรษฐกิจ\n- พัฒนานโยบายตลาดการเงินในยุคดิจิทัล",
+    legalInstruments:"OECD/LEGAL/0470 - Recommendation of the Council on Blockchain and Other Distributed Ledger Technologies\nOECD/LEGAL/0461 - Recommendation of the Council on Financial Literacy\nOECD/LEGAL/0453 - Recommendation of the Council on Consumer Protection in the field of Consumer Credit\nOECD/LEGAL/0394 - Recommendation of the Council on High-Level Principles on Financial Consumer Protection\nOECD/LEGAL/0377 - Recommendation of the Council on a Policy Framework for Effective and Efficient Financial Regulation",
+    questionnaireStatus:'none', questionnaireDate:"02/01/2028",
+    factFinding:"—", accessionReview:"14/03/2028",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงานและกรอบระยะเวลา\nการประชุม OECD Financial Markets Week ครั้งถัดไปจะจัดขึ้นระหว่างวันที่ 3–4 กันยายน 2569",
+    notes:"การประเมินคณะกรรมการจะเกิดขึ้นภายหลังคณะทำงานทั้งหมด\nคาดการณ์กรอบเวลาการประเมินในช่วงปี 2571" },
+
+  { id:3, type:'wp', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Working Party on Insurance and Pensions",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"สำนักงานประกันสังคม กระทรวงแรงงาน",
+    objectives:"- ส่งเสริมการกำกับดูแลตลาดกองทุนบำเหน็จบำนาญและการประกันภัย\n- กำกับดูแลด้านความเสี่ยงในการลงทุนและการจัดสรรสินทรัพย์\n- เพิ่มขีดความสามารถกองทุนบำเหน็จบำนาญรองรับสังคมสูงวัย",
+    legalInstruments:"OECD/LEGAL/0467 - Recommendation of the Council for the Good Design of Defined Contribution Pension Plans\nOECD/LEGAL/0436 - Recommendation of the Council on Building Financial Resilience to Disaster Risks\nOECD/LEGAL/0429 - Recommendation of the Council on Core Principles of Private Pension Regulation\nOECD/LEGAL/0335 - Recommendation of the Council on Guidelines on Insurer Governance\nOECD/LEGAL/0330 - Recommendation of the Council on Good Practices for Insurance Claim Management\nOECD/LEGAL/0214 - Recommendation of the Council concerning a Common Classification of the Classes of Insurance",
+    questionnaireStatus:'none', questionnaireDate:"18/12/2027",
+    factFinding:"23/07/2027", accessionReview:"02/01/2028",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงานและกรอบระยะเวลา",
+    notes:"" },
+
+  { id:4, type:'wp', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Working Party on Financial Consumer Protection, Education and Inclusion",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"กองทุนบำเหน็จบำนาญข้าราชการ",
+    objectives:"ส่งเสริมการกำกับดูแลระบบการเงินผ่านการคุ้มครองผู้บริโภค การสร้างความรับรู้ และการเข้าถึงความรู้ด้านการเงินอย่างครอบคลุม",
+    legalInstruments:"OECD/LEGAL/0461 - Recommendation of the Council on Financial Literacy\nOECD/LEGAL/0453 - Recommendation of the Council on Consumer Protection in the field of Consumer Credit\nOECD/LEGAL/0394 - Recommendation of the Council on High-Level Principles on Financial Consumer Protection\nOECD/LEGAL/0377 - Recommendation of the Council on a Policy Framework for Effective and Efficient Financial Regulation",
+    questionnaireStatus:'none', questionnaireDate:"28/09/2027",
+    factFinding:"19/05/2027", accessionReview:"02/01/2028",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงานและกรอบระยะเวลา",
+    notes:"" },
+
+  { id:5, type:'wp', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Working Party on Sustainable Finance (สศค.)",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"—",
+    objectives:"ส่งเสริมบทบาทของสถาบันการเงินและระบบการเงินในการเปลี่ยนผ่านสู่ความยั่งยืน",
+    legalInstruments:"—",
+    questionnaireStatus:'none', questionnaireDate:"18/12/2027",
+    factFinding:"23/07/2027", accessionReview:"02/01/2028",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงาน",
+    notes:"" },
+
+  { id:6, type:'wp', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Working Party on Sustainable Finance (สบน.)",
+    agency:"สำนักบริหารหนี้สาธารณะ กระทรวงการคลัง*",
+    stakeholders:"—",
+    objectives:"- เพิ่มขีดความสามารถภาครัฐในการบริหารจัดการหนี้สาธารณะ\n- แลกเปลี่ยนความรู้แนวปฏิบัติที่ดีด้านหนี้สาธารณะกับประเทศสมาชิก",
+    legalInstruments:"—",
+    questionnaireStatus:'none', questionnaireDate:"06/02/2027",
+    factFinding:"19/05/2027", accessionReview:"31/08/2027",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงาน",
+    notes:"" },
+
+  { id:7, type:'committee', committee:"Trade Committee",
+    workingParty:"Trade Committee — ระดับคณะกรรมการ",
+    agency:"กรมเจรจาการค้าระหว่างประเทศ กระทรวงพาณิชย์*",
+    stakeholders:"กรมการค้าต่างประเทศ กระทรวงพาณิชย์\nกรมทรัพย์สินทางปัญญา กระทรวงพาณิชย์\nสำนักงานปลัดกระทรวงพาณิชย์\nสำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง\nกรมศุลกากร กระทรวงการคลัง\nกรมสรรพสามิต กระทรวงการคลัง\nกรมเจ้าท่า กระทรวงคมนาคม\nสำนักงานป้องกันและปราบปรามการฟอกเงิน\nการนิคมอุตสาหกรรมแห่งประเทศไทย",
+    objectives:"- สนับสนุนให้ประเทศสมาชิกได้รับผลประโยชน์จากโอกาสทางการค้าตามมาตรฐานสากล\n- ส่งเสริมการหารือด้านนโยบายการค้า\n- พัฒนาโครงสร้างพื้นฐานการเปิดเสรีทางการค้า",
+    legalInstruments:"OECD/LEGAL/0187 - Declaration on Trade Policy\nOECD/LEGAL/0454 - Recommendation of the Council on Countering Illicit Trade: Enhancing Transparency in Free Trade Zones",
+    questionnaireStatus:'in_progress', questionnaireDate:"30/10/2026",
+    factFinding:"10/03/2027", accessionReview:"15/07/2027",
+    progress:"เมื่อวันที่ 7 เมษายน 2569 หน่วยงานรับผิดชอบหลักและคณะกรรมการฯ ได้ประชุมหารือ (Coordination Call) เพื่อกำหนดแนวทางการประเมินทางเทคนิคร่วมกัน\nคณะกรรมการฯ ได้ส่ง Questionnaire ฉบับแรกในหัวข้อ Market Openness Review มาด้วยแล้ว",
+    notes:"" },
+
+  { id:8, type:'wp', committee:"Trade Committee",
+    workingParty:"Working Party on Export Credits and Credit Guarantees",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"ธนาคารเพื่อการส่งออกและนำเข้าแห่งประเทศไทย (EXIM Bank)",
+    objectives:"- ติดตามประเมินผลนโยบายสินเชื่อเพื่อการส่งออก\n- สร้างความเท่าเทียมด้านการแข่งขันทางการค้าระหว่างประเทศ\n- ส่งเสริมมาตรฐานการแลกเปลี่ยนข้อมูลตามแนวปฏิบัติ OECD",
+    legalInstruments:"OECD/LEGAL/0393 - Recommendation of the Council on Common Approaches for Officially Supported Export Credits\nOECD/LEGAL/0442 - Recommendation of the Council on Sustainable Lending Practices and Officially Supported Export Credits\nOECD/LEGAL/0447 - Recommendation of the Council on Bribery and Officially Supported Export Credits\nOECD/LEGAL/5005 - Arrangement on Officially Supported Export Credits",
+    questionnaireStatus:'in_progress', questionnaireDate:"29/12/2026",
+    factFinding:"02/05/2026", accessionReview:"06/02/2027",
+    progress:"เมื่อวันที่ 7 เมษายน 2569 หน่วยงานรับผิดชอบหลักและคณะกรรมการฯ ได้ประชุมหารือ (Coordination Call) เพื่อกำหนดแนวทางการประเมินทางเทคนิคร่วมกัน",
+    notes:"OECD/LEGAL/5005 เป็นแนวปฏิบัติในการประเมินตนเอง ไม่มีข้อผูกมัดทางกฎหมาย" }
+];
+
+/* ═══════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════ */
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+function parseDate(str) {
+  if (!str || str === '—' || str === '-') return null;
+  const s = str.trim();
+  // Year only → Dec 31
+  if (/^\d{4}$/.test(s)) return new Date(parseInt(s), 11, 31);
+  const p = s.split('/');
+  // DD/MM/YYYY
+  if (p.length === 3) return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+  // MM/YYYY → last day of that month
+  if (p.length === 2) {
+    const m = parseInt(p[0]), y = parseInt(p[1]);
+    return new Date(y, m, 0); // day 0 of next month = last day of m
+  }
+  return null;
+}
+
+function ds(str) {
+  const d = parseDate(str); if (!d) return 'na';
+  return d <= TODAY ? 'done' : 'pending';
+}
+
+// Questionnaire chip
+function qChip(item) {
+  const s = item.questionnaireStatus;
+  const d = item.questionnaireDate;
+  if (s === 'submitted') return `<span class="chip chip-q-done"><span class="chip-lbl">Q</span>ส่งแล้ว</span>`;
+  if (s === 'in_progress') return `<span class="chip chip-q-prog"><span class="chip-lbl">Q</span>กำลังจัดทำ</span>`;
+  return `<span class="chip chip-q-none"><span class="chip-lbl">Q</span>ยังไม่ได้รับ</span>`;
+}
+
+// FF / AR chip
+function dateChip(str, lbl) {
+  const s = ds(str);
+  const cls = s==='done'?'chip-done':s==='pending'?'chip-pending':'chip-na';
+  return `<span class="chip ${cls}"><span class="chip-lbl">${lbl}</span>${str}</span>`;
+}
+
+function statusTh(s) { return s==='done'?'ผ่านกำหนดแล้ว':s==='pending'?'ยังไม่ถึงกำหนด':'ไม่ระบุ'; }
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let currentView = 'grid';
+let activeFilter = 'all';
+let currentItem = null;
+
+// rawData starts as the hardcoded set; replaced by CSV when loaded
+let liveData = rawData;
+
+/* ═══════════════════════════════════════════════════════
+   CSV → DATA PIPELINE
+═══════════════════════════════════════════════════════ */
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQzO5SxtTXOfpJAZOGTB2-5YH0WipqH22OnoDDtjHr5exGkwxvXWcpxk1-yWApspYjvYbMgtdF9qLZl/pub?gid=0&single=true&output=csv';
+
+// Robust CSV parser (handles quoted fields with commas/newlines)
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"' && text[i+1] === '"') { field += '"'; i++; }
+      else if (c === '"') inQ = false;
+      else field += c;
+    } else {
+      if (c === '"')  { inQ = true; }
+      else if (c === ',') { row.push(field.trim()); field = ''; }
+      else if (c === '\n') { row.push(field.trim()); if (row.some(f=>f)) rows.push(row); row = []; field = ''; }
+      else if (c !== '\r') field += c;
+    }
+  }
+  if (field || row.length) { row.push(field.trim()); if (row.some(f=>f)) rows.push(row); }
+  return rows;
+}
+
+// Normalise a date cell: handles Excel serial, DD/MM/YYYY, MM/YYYY, YYYY
+function normDate(s) {
+  if (!s || s === '' || s === '-') return '—';
+  s = s.trim();
+  if (s === '—') return '—';
+  // Year only (e.g. "2027")
+  if (/^\d{4}$/.test(s)) return s;
+  // Excel serial number (5 digits)
+  if (/^\d{5}(\.\d+)?$/.test(s)) {
+    const n = parseFloat(s);
+    const d = new Date(Math.round((n - 25569) * 86400000));
+    if (isNaN(d)) return s;
+    const dd = String(d.getUTCDate()).padStart(2,'0');
+    const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+    return `${dd}/${mm}/${d.getUTCFullYear()}`;
+  }
+  // DD/MM/YYYY full date
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  // MM/YYYY month-year only (e.g. "04/2027")
+  if (/^\d{1,2}\/\d{4}$/.test(s)) {
+    const [m, y] = s.split('/');
+    return `${String(m).padStart(2,'0')}/${y}`;
+  }
+  return s;
+}
+
+// Find column index by partial Thai/English header match
+function colIdx(headers, ...keywords) {
+  return headers.findIndex(h => keywords.some(k => h.toLowerCase().includes(k.toLowerCase())));
+}
+
+// Derive questionnaireStatus from the explicit status column value
+// Accepted values (case-insensitive): "Completed" | "In progress" | blank
+function deriveQStatus(dateStr, statusCol) {
+  const v = (statusCol || '').trim().toLowerCase();
+  if (v === 'completed' || v === 'complete' || v.includes('ส่งแล้ว') || v.includes('submit')) return 'submitted';
+  if (v === 'in progress' || v === 'in_progress' || v.includes('กำลัง') || v.includes('progress')) return 'in_progress';
+  // Blank status → not received yet, even if there is a date
+  return 'none';
+}
+
+// Convert parsed CSV rows → dashboard data array
+// EXACT positional column layout confirmed from uploaded CSV:
+//   0  ระดับ (Level)                          → type: "คณะกรรมการ" | "คณะทำงาน"
+//   1  คณะกรรมการ (Committee Group)           → committee group / grouping label
+//   2  คณะกรรมการ/คณะทำงาน (Entity Name)     → displayed entity name
+//   3  หน่วยงานรับผิดชอบหลัก                 → agency
+//   4  หน่วยงานที่เกี่ยวข้อง                  → stakeholders
+//   5  สาระสำคัญ (Objectives)                 → objectives
+//   6  ตราสารกฎหมาย (Legal Instruments)       → legalInstruments
+//   7  Questionnaire Status                   → questionnaireStatus
+//   8  Questionnaire                          → questionnaireDate
+//   9  Fact-finding Mission                   → factFinding
+//  10  Accession Review                       → accessionReview
+//  11  การดำเนินการในปัจจุบัน                 → progress
+//  12  ส่วนของผู้บันทึกข้อมูล                  → notes
+function csvToData(rows) {
+  if (rows.length < 2) return null;
+
+  // All columns by fixed position — no keyword guessing
+  const iLevel   = 0;
+  const iGroup   = 1;
+  const iName    = 2;
+  const iAgency  = 3;
+  const iStake   = 4;
+  const iObj     = 5;
+  const iLegal   = 6;
+  const iQStatus = 7;
+  const iQ       = 8;
+  const iFF      = 9;
+  const iAR      = 10;
+  const iProg    = 11;
+  const iNotes   = 12;
+
+  const data = [];
+  let lastGroup = '';
+
+  rows.slice(1).forEach((row, idx) => {
+    const get = (i) => (i < row.length ? (row[i] || '').trim() : '');
+
+    // Col C — entity name; skip blank rows
+    const entityName = get(iName);
+    if (!entityName) return;
+
+    // Col A — ระดับ: "คณะกรรมการ" → committee, "คณะทำงาน" → wp
+    const levelRaw = get(iLevel).trim();
+    const type = (levelRaw === 'คณะกรรมการ' || levelRaw.toLowerCase().startsWith('committee'))
+      ? 'committee' : 'wp';
+
+    // Col B — committee group; forward-fill merged/blank cells
+    const groupRaw = get(iGroup);
+    if (groupRaw) lastGroup = groupRaw;
+    const committee = lastGroup || entityName;
+
+    // Questionnaire status from dedicated column (Col H)
+    const qStatus = deriveQStatus(get(iQ), get(iQStatus));
+
+    data.push({
+      id:                  idx,
+      type,
+      committee,
+      workingParty:        entityName,
+      agency:              get(iAgency) || '—',
+      stakeholders:        get(iStake)  || '—',
+      objectives:          get(iObj),
+      legalInstruments:    get(iLegal)  || '—',
+      questionnaireStatus: qStatus,
+      questionnaireDate:   normDate(get(iQ)),
+      factFinding:         normDate(get(iFF)),
+      accessionReview:     normDate(get(iAR)),
+      progress:            get(iProg),
+      notes:               get(iNotes),
+    });
+  });
+
+  return data.length ? data : null;
+}
+
+async function loadFromSheets() {
+  const overlay = document.getElementById('loadingOverlay');
+  const msg     = document.getElementById('loadingMsg');
+  try {
+    msg.textContent = 'เชื่อมต่อ Google Sheets…';
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    msg.textContent = 'วิเคราะห์ข้อมูล…';
+    const text = await res.text();
+    const rows = parseCSV(text);
+    const parsed = csvToData(rows);
+    if (parsed) {
+      liveData = parsed;
+      msg.textContent = `โหลดสำเร็จ — ${parsed.length} รายการ`;
+    } else {
+      throw new Error('ไม่สามารถแปลงข้อมูลได้');
+    }
+  } catch (err) {
+    console.warn('CSV fetch failed, using fallback data:', err);
+    liveData = rawData;
+    msg.textContent = 'ใช้ข้อมูลสำรอง (offline mode)';
+  } finally {
+    setTimeout(() => { overlay.style.display = 'none'; }, 400);
+    renderAll();
+  }
+}
+
+function renderAll() {
+  renderSummary();
+  renderProgress();
+  renderFilterBtns();
+  applyFilters();
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('currentDate').textContent =
+    new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  loadFromSheets();
+});
+
+/* ═══════════════════════════════════════════════════════
+   SUMMARY
+═══════════════════════════════════════════════════════ */
+function renderSummary() {
+  const nC = [...new Set(liveData.filter(d=>d.type==='committee').map(d=>d.committee))].length;
+  const nW = liveData.filter(d=>d.type==='wp').length;
+  const qProg = liveData.filter(d=>d.questionnaireStatus==='in_progress').length;
+  const qDone = liveData.filter(d=>d.questionnaireStatus==='submitted').length;
+
+  document.getElementById('sumRow').innerHTML = `
+    <div class="sum-card cn"><div class="slbl">คณะกรรมการ</div><div class="sval">${nC}</div><div class="ssub">Committees</div></div>
+    <div class="sum-card cb"><div class="slbl">คณะทำงาน</div><div class="sval">${nW}</div><div class="ssub">Working Parties</div></div>
+    <div class="sum-card ca">
+      <div class="slbl">Questionnaire กำลังจัดทำ</div>
+      <div class="sval">${qProg}<span style="font-size:18px;font-weight:500;color:var(--textd)">/${liveData.length}</span></div>
+      <div class="ssub">รายการอยู่ระหว่างดำเนินการ</div>
+    </div>
+    <div class="sum-card cg">
+      <div class="slbl">Questionnaire ส่งแล้ว</div>
+      <div class="sval">${qDone}<span style="font-size:18px;font-weight:500;color:var(--textd)">/${liveData.length}</span></div>
+      <div class="ssub">Questionnaire submitted</div>
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PROGRESS PANEL
+═══════════════════════════════════════════════════════ */
+function renderProgress() {
+  const total = liveData.length;
+
+  // ── Questionnaire 3-state segmented bar ──────────────────
+  const qSub  = liveData.filter(d=>d.questionnaireStatus==='submitted').length;
+  const qProg = liveData.filter(d=>d.questionnaireStatus==='in_progress').length;
+  const qNone = liveData.filter(d=>d.questionnaireStatus==='none').length;
+
+  const pSub  = (qSub/total*100).toFixed(1);
+  const pProg = (qProg/total*100).toFixed(1);
+  const pNone = (qNone/total*100).toFixed(1);
+
+  document.getElementById('qBar').innerHTML = `
+    <div class="seg-fill seg-green" style="width:${pSub}%"></div>
+    <div class="seg-fill seg-amber" style="width:${pProg}%"></div>
+    <div class="seg-fill seg-gray"  style="width:${pNone}%"></div>
+  `;
+
+  document.getElementById('qCounts').innerHTML = `
+    <div class="q-count-item"><div class="q-dot" style="background:var(--green)"></div> Questionnaire ส่งแล้ว: <strong>${qSub}/${total}</strong></div>
+    <div class="q-count-item"><div class="q-dot" style="background:#f59e0b"></div> Questionnaire กำลังจัดทำ: <strong>${qProg}/${total}</strong></div>
+    <div class="q-count-item"><div class="q-dot" style="background:#cbd5e1"></div> ยังไม่ได้รับ Questionnaire: <strong>${qNone}/${total}</strong></div>
+  `;
+
+  // ── 6-month timeline for FF and AR ───────────────────────
+  const window6Start = new Date(TODAY);
+  const window6End   = new Date(TODAY);
+  window6End.setMonth(window6End.getMonth() + 6);
+
+  // Format subtitle
+  const fmt = d => d.toLocaleDateString('th-TH',{month:'short',year:'numeric'});
+  document.getElementById('tlSubtitle').textContent =
+    `แสดงรายการที่มีกำหนดการระหว่าง ${fmt(window6Start)} — ${fmt(window6End)}`;
+
+  // Collect events in window
+  const events = [];
+  liveData.forEach(item => {
+    const shortName = item.workingParty.replace(' — ระดับคณะกรรมการ','').replace('Working Party on ','WP: ');
+    ['factFinding','accessionReview'].forEach(key => {
+      const d = parseDate(item[key]);
+      if (d && d >= window6Start && d <= window6End) {
+        events.push({ date:d, label:shortName, type:key==='factFinding'?'ff':'ar', id:item.id,
+          fullDate:item[key] });
+      }
+    });
+  });
+
+  events.sort((a,b) => a.date - b.date);
+
+  // Build month labels
+  const months = [];
+  for (let i=0; i<6; i++) {
+    const m = new Date(window6Start);
+    m.setMonth(m.getMonth() + i);
+    months.push({ label: m.toLocaleDateString('th-TH',{month:'short'}), year: m.getFullYear(), monthIdx: m.getMonth() });
+  }
+
+  document.getElementById('tlMonths').innerHTML = months.map((m,i) => {
+    const isCur = m.monthIdx === TODAY.getMonth() && m.year === TODAY.getFullYear();
+    return `<div class="tl-month${isCur?' cur':''}">${m.label}</div>`;
+  }).join('');
+
+  // Total span in days
+  const totalDays = (window6End - window6Start) / 86400000;
+
+  function pct(d) {
+    return Math.max(0, Math.min(100, (d - window6Start) / 86400000 / totalDays * 100));
+  }
+
+  // Axis with today marker
+  const todayPct = pct(TODAY);
+  document.getElementById('tlAxisWrap').innerHTML = `
+    <div class="tl-axis">
+      <div class="tl-line"></div>
+      <div class="tl-today-line" style="left:${todayPct}%">
+        <div class="tl-today-lbl" style="left:${todayPct < 10 ? '0' : '-50'}%; transform:none">วันนี้</div>
+      </div>
+    </div>
+  `;
+
+  // Render events
+  const tlEl = document.getElementById('tlEvents');
+  if (!events.length) {
+    tlEl.innerHTML = `<div class="tl-empty">ไม่มีรายการที่มีกำหนดในช่วง 6 เดือนข้างหน้า</div>`;
+    return;
+  }
+
+  // Simple row assignment to avoid overlap
+  const rows = [];
+  events.forEach(ev => {
+    const left = pct(ev.date);
+    let assigned = false;
+    for (let r=0; r<rows.length; r++) {
+      if (left - rows[r].lastRight > 1) {
+        rows[r].items.push({...ev, left});
+        rows[r].lastRight = left + 25;
+        assigned = true; break;
+      }
+    }
+    if (!assigned) rows.push({ items:[{...ev, left}], lastRight: left + 25 });
+  });
+
+  tlEl.innerHTML = rows.map(row => {
+    const items = row.items.map(ev => {
+      const typeLabel = ev.type === 'ff' ? 'FF' : 'AR';
+      return `<div class="tl-event ${ev.type}" style="left:calc(${ev.left}% - 2px)"
+        onclick="openModal(${ev.id})" title="${ev.label} — ${ev.fullDate}">
+        <strong>${typeLabel}</strong>&nbsp;${ev.label}
+      </div>`;
+    }).join('');
+    return `<div class="tl-row">${items}</div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   FILTER BUTTONS
+═══════════════════════════════════════════════════════ */
+function renderFilterBtns() {
+  const cs = ['all', ...new Set(liveData.map(d=>d.committee))];
+  document.getElementById('filterBtns').innerHTML = cs.map(c =>
+    `<button class="filter-btn ${c==='all'?'active':''}" onclick="setFilter('${c.replace(/'/g,"\\'")}',this)">${c==='all'?'ทั้งหมด':c}</button>`
+  ).join('');
+}
+
+function setFilter(val, btn) {
+  activeFilter = val;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = liveData.filter(item => {
+    const mf = activeFilter==='all' || item.committee===activeFilter;
+    const ms = !q || [item.committee,item.workingParty,item.agency,item.stakeholders,item.progress].some(s=>s.toLowerCase().includes(q));
+    return mf && ms;
+  });
+  document.getElementById('visCount').textContent = filtered.length;
+  currentView==='grid' ? renderGrouped(filtered) : renderTable(filtered);
+}
+
+/* ═══════════════════════════════════════════════════════
+   CARD VIEW
+═══════════════════════════════════════════════════════ */
+function renderGrouped(data) {
+  const el = document.getElementById('mainContent');
+  if (!data.length) { el.innerHTML=`<div class="empty-state">ไม่พบข้อมูลที่ตรงกับการค้นหา</div>`; return; }
+
+  el.innerHTML = [...new Set(data.map(d=>d.committee))].map(committee => {
+    const cItem = data.find(d=>d.committee===committee && d.type==='committee');
+    const wps   = data.filter(d=>d.committee===committee && d.type==='wp');
+    let html = `<div class="committee-group">`;
+
+    if (cItem) {
+      html += `
+        <div class="committee-hdr" onclick="openModal(${cItem.id})">
+          <div class="ch-left">
+            <div class="ch-icon">🏛</div>
+            <div>
+              <div class="ch-lbl">คณะกรรมการ · Committee Level</div>
+              <div class="ch-name">${cItem.committee}</div>
+            </div>
+          </div>
+          <div class="ch-right">
+            ${qChip(cItem)}
+            ${dateChip(cItem.factFinding,'FF')}
+            ${dateChip(cItem.accessionReview,'AR')}
+            <span class="ch-tag">${wps.length} WP${wps.length!==1?'s':''}</span>
+          </div>
+        </div>`;
+    }
+
+    if (wps.length) {
+      html += `<div class="wp-grid">` + wps.map((item,i) => `
+        <div class="task-card" style="animation-delay:${i*0.05}s" onclick="openModal(${item.id})">
+          <div class="card-hdr">
+            <div class="card-type">Working Party</div>
+            <div class="card-wp">${item.workingParty}</div>
+          </div>
+          <div class="card-body">
+            <div class="card-agency">🏢 ${item.agency.split('\n')[0]}</div>
+            <div class="card-progress">${item.progress.replace(/\n/g,' ')}</div>
+            <div class="chip-row">
+              ${qChip(item)}
+              ${item.factFinding!=='—'?dateChip(item.factFinding,'FF'):''}
+              ${dateChip(item.accessionReview,'AR')}
+            </div>
+          </div>
+        </div>`).join('') + `</div>`;
+    }
+
+    return html + `</div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   TABLE VIEW
+═══════════════════════════════════════════════════════ */
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  if (!data.length) { tbody.innerHTML=`<tr><td colspan="7" class="empty-state">ไม่พบข้อมูล</td></tr>`; return; }
+  tbody.innerHTML = data.map(item => `
+    <tr onclick="openModal(${item.id})">
+      <td style="font-size:10px;font-weight:700;color:var(--textd)">${item.type==='committee'?'COMMITTEE':'WP'}</td>
+      <td class="td-c tdt">${item.committee}</td>
+      <td style="max-width:220px;font-size:12px;font-weight:500">${item.workingParty}</td>
+      <td class="td-a tdt">${item.agency.split('\n')[0]}</td>
+      <td>${qChip(item)}</td>
+      <td>${dateChip(item.factFinding,'FF')}</td>
+      <td>${dateChip(item.accessionReview,'AR')}</td>
+    </tr>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   VIEW TOGGLE
+═══════════════════════════════════════════════════════ */
+function setView(v) {
+  currentView = v;
+  document.getElementById('mainContent').style.display  = v==='grid'?'block':'none';
+  document.getElementById('tableWrap').style.display    = v==='table'?'block':'none';
+  document.getElementById('btnGrid').classList.toggle('active',  v==='grid');
+  document.getElementById('btnTable').classList.toggle('active', v==='table');
+  applyFilters();
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════════ */
+function openModal(id) {
+  currentItem = liveData.find(d=>d.id===id);
+  const item = currentItem;
+
+  document.getElementById('mBadge').textContent =
+    item.type==='committee' ? item.committee+' · ระดับคณะกรรมการ' : item.committee+' · Working Party';
+  document.getElementById('mTitle').textContent = item.workingParty;
+
+  const agHtml = item.agency.split('\n').filter(Boolean).map(a=>`<span class="ap">🏛 ${a}</span>`).join('');
+  const shList  = item.stakeholders.split('\n').filter(s=>s&&s!=='—');
+  const shHtml  = shList.length ? shList.map(s=>`<span class="sp">${s}</span>`).join('') : '<span style="color:var(--textw);font-size:12px">—</span>';
+
+  const legals  = item.legalInstruments.split('\n').filter(l=>l&&l!=='—');
+  const legHtml = legals.length ? legals.map(l=>{
+    const p = l.match(/(OECD\/LEGAL\/\S+)\s*-\s*(.*)/);
+    return p ? `<div class="legal-item"><div class="legal-code">${p[1]}</div>${p[2]}</div>` : `<div class="legal-item">${l}</div>`;
+  }).join('') : '<div style="color:var(--textw);font-size:12px">—</div>';
+
+  // Questionnaire state card
+  const qState = item.questionnaireStatus;
+  const qCls   = qState==='submitted'?'q-done2':qState==='in_progress'?'q-prog':'q-none';
+  const qLabel = qState==='submitted'?'ส่งแล้ว':qState==='in_progress'?'กำลังจัดทำ':'ยังไม่ได้รับ';
+
+  const ffS = ds(item.factFinding), arS = ds(item.accessionReview);
+
+  function tlc(cls, lbl, date, st) {
+    return `<div class="tlc ${cls}"><div class="tlc-lbl">${lbl}</div><div class="tlc-date">${date}</div><div class="tlc-st">${st}</div></div>`;
+  }
+
+  document.getElementById('mBody').innerHTML = `
+    <div class="m-section"><div class="m-lbl">หน่วยงานรับผิดชอบหลัก</div><div class="m-content">${agHtml}</div></div>
+    <div class="m-section"><div class="m-lbl">หน่วยงานที่เกี่ยวข้อง (Stakeholders)</div><div class="m-content">${shHtml}</div></div>
+    <div class="m-section">
+      <div class="m-lbl">กรอบเวลาการประเมิน</div>
+      <div class="tl-grid3">
+        ${tlc(qCls, 'Questionnaire', item.questionnaireDate, qLabel)}
+        ${tlc(ffS,  'Fact-finding Mission', item.factFinding, ffS==='done'?'✓ ผ่านกำหนดแล้ว':ffS==='pending'?'⏳ ยังไม่ถึงกำหนด':'— ไม่ระบุ')}
+        ${tlc(arS,  'Accession Review', item.accessionReview, arS==='done'?'✓ ผ่านกำหนดแล้ว':arS==='pending'?'⏳ ยังไม่ถึงกำหนด':'— ไม่ระบุ')}
+      </div>
+    </div>
+    <div class="m-section"><div class="m-lbl">สาระสำคัญ (Objectives)</div><div class="m-content">${item.objectives.split('\n').filter(Boolean).map(o=>`<div style="margin-bottom:5px">${o}</div>`).join('')}</div></div>
+    <div class="m-section"><div class="m-lbl">ตราสารกฎหมาย (Legal Instruments)</div><div class="m-content">${legHtml}</div></div>
+    <div class="m-section"><div class="m-lbl">การดำเนินการในปัจจุบัน (Current Progress)</div><div class="m-content hl">${item.progress.split('\n').filter(Boolean).map(p=>`<div style="margin-bottom:5px">${p}</div>`).join('')}</div></div>
+    ${item.notes?`<div class="m-section"><div class="m-lbl">หมายเหตุ (Notes)</div><div class="notes-box">${item.notes.replace(/\n/g,'<br>')}</div></div>`:''}
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(e) { if(e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+
+/* ═══════════════════════════════════════════════════════
+   PRINT FACT SHEET
+═══════════════════════════════════════════════════════ */
+function printFactSheet() {
+  if (!currentItem) return;
+  const item = currentItem;
+  const ffS = ds(item.factFinding), arS = ds(item.accessionReview);
+  const qLabel = item.questionnaireStatus==='submitted'?'ส่งแล้ว':item.questionnaireStatus==='in_progress'?'กำลังจัดทำ':'ยังไม่ได้รับ';
+
+  const agencies  = item.agency.split('\n').filter(Boolean);
+  const shList    = item.stakeholders.split('\n').filter(s=>s&&s!=='—');
+  const legals    = item.legalInstruments.split('\n').filter(l=>l&&l!=='—');
+  const objLines  = item.objectives.split('\n').filter(Boolean);
+  const progLines = item.progress.split('\n').filter(Boolean);
+
+  const legalRows = legals.length ? legals.map((l,i)=>{
+    const p = l.match(/(OECD\/LEGAL\/\S+)\s*-\s*(.*)/);
+    return p?`<tr><td class="n">(${i+1})</td><td><strong class="lc">${p[1]}</strong> ${p[2]}</td></tr>`
+            :`<tr><td class="n">(${i+1})</td><td>${l}</td></tr>`;
+  }).join('') : `<tr><td></td><td style="color:#9ca3af">—</td></tr>`;
+
+  function stRow(lbl, date, colTxt) {
+    return `<tr><td>${lbl}</td><td style="font-weight:700">${date}</td><td style="font-weight:600;color:${colTxt.col}">${colTxt.txt}</td></tr>`;
+  }
+
+  const qCol = item.questionnaireStatus==='submitted'?{col:'#15803d',txt:'ส่งแล้ว'}:item.questionnaireStatus==='in_progress'?{col:'#b45309',txt:'กำลังจัดทำ'}:{col:'#6b7280',txt:'ยังไม่ได้รับ'};
+  const ffCol = ffS==='done'?{col:'#15803d',txt:'ผ่านกำหนดแล้ว'}:ffS==='pending'?{col:'#b45309',txt:'ยังไม่ถึงกำหนด'}:{col:'#9ca3af',txt:'ไม่ระบุ'};
+  const arCol = arS==='done'?{col:'#15803d',txt:'ผ่านกำหนดแล้ว'}:arS==='pending'?{col:'#b45309',txt:'ยังไม่ถึงกำหนด'}:{col:'#9ca3af',txt:'ไม่ระบุ'};
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8">
+<title>Fact Sheet — ${item.workingParty}</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Sarabun',sans-serif;color:#111827;font-size:12pt;line-height:1.8;background:#fff}
+  .page{max-width:720px;margin:0 auto;padding:48px 52px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a3a6b;padding-bottom:10px;margin-bottom:26px}
+  .doc-meta{font-size:8.5pt;text-transform:uppercase;letter-spacing:1.2px;color:#6b7280;line-height:1.7}
+  .oecd-mark{font-size:10pt;font-weight:800;color:#1a3a6b}
+  .title-block{margin-bottom:24px}
+  .clbl{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#2563a8;margin-bottom:7px}
+  .mtitle{font-size:17pt;font-weight:800;color:#111827;line-height:1.3}
+  hr{border:none;border-top:1px solid #e5e7eb;margin:20px 0}
+  .section{margin-bottom:22px}
+  .sh{font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1a3a6b;border-left:3px solid #1a3a6b;padding-left:9px;margin-bottom:11px}
+  .sb{font-size:11.5pt;color:#374151;line-height:1.8;padding-left:12px}
+  table.tlt{width:100%;border-collapse:collapse}
+  table.tlt th{font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#6b7280;text-align:left;padding:6px 14px;border-bottom:1.5px solid #d1d5db}
+  table.tlt td{font-size:11.5pt;padding:8px 14px;border-bottom:1px solid #f3f4f6;color:#111827;vertical-align:middle}
+  table.tlt tr:last-child td{border-bottom:none}
+  table.lt{width:100%;border-collapse:collapse}
+  table.lt td{padding:7px 0;border-bottom:1px solid #f3f4f6;font-size:11pt;color:#374151;vertical-align:top;line-height:1.65}
+  table.lt tr:last-child td{border-bottom:none}
+  .n{color:#9ca3af;font-size:9.5pt;padding-right:10px;white-space:nowrap;vertical-align:top;padding-top:8px}
+  .lc{color:#1a3a6b;font-size:9pt;font-weight:800;font-family:monospace}
+  .notes-block{background:#eff6ff;border-left:3px solid #93c5fd;padding:11px 14px;font-size:11pt;color:#374151;line-height:1.7}
+  .footer{margin-top:38px;padding-top:10px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af}
+  @media print{body{font-size:11pt}.page{padding:28px 36px}.mtitle{font-size:14pt}}
+</style></head><body>
+<div class="page">
+
+<div class="topbar">
+  <div class="doc-meta">Fact Sheet · OECD Accession Tracking<br>จัดทำเมื่อ ${new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})}</div>
+  <div class="oecd-mark">OECD · ราชอาณาจักรไทย</div>
+</div>
+
+<div class="title-block">
+  <div class="clbl">${item.committee}${item.type==='committee'?' · ระดับคณะกรรมการ':' · Working Party'}</div>
+  <h1 class="mtitle">${item.workingParty}</h1>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="sh">หน่วยงานรับผิดชอบหลัก</div>
+  <div class="sb">${agencies.map((a,i)=>`${i+1}. ${a}`).join('<br>')}</div>
+</div>
+
+${shList.length?`<div class="section"><div class="sh">หน่วยงานที่เกี่ยวข้อง (Stakeholders)</div><div class="sb">${shList.map((s,i)=>`${i+1}. ${s}`).join('<br>')}</div></div>`:''}
+
+<div class="section">
+  <div class="sh">กรอบเวลาการประเมิน</div>
+  <div style="padding-left:12px">
+    <table class="tlt">
+      <thead><tr><th>ขั้นตอน</th><th>วันที่กำหนด</th><th>สถานะ</th></tr></thead>
+      <tbody>
+        ${stRow('Questionnaire', item.questionnaireDate, qCol)}
+        ${stRow('Fact-finding Mission', item.factFinding, ffCol)}
+        ${stRow('Accession Review', item.accessionReview, arCol)}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sh">สาระสำคัญ (Objectives)</div>
+  <div class="sb">${objLines.map(o=>`<p style="margin-bottom:5px">${o}</p>`).join('')}</div>
+</div>
+
+${legals.length?`<div class="section"><div class="sh">ตราสารกฎหมาย (Legal Instruments)</div><div style="padding-left:12px"><table class="lt"><tbody>${legalRows}</tbody></table></div></div>`:''}
+
+<div class="section">
+  <div class="sh">การดำเนินการในปัจจุบัน (Current Progress)</div>
+  <div class="sb">${progLines.map(p=>`<p style="margin-bottom:5px">${p}</p>`).join('')}</div>
+</div>
+
+${item.notes?`<div class="section"><div class="sh">หมายเหตุ</div><div style="padding-left:12px"><div class="notes-block">${item.notes.replace(/\n/g,'<br>')}</div></div></div>`:''}
+
+<div class="footer">
+  <span>OECD Accession Tracking Dashboard · ราชอาณาจักรไทย</span>
+  <span>เอกสารนี้จัดทำเพื่อการติดตามภายในเท่านั้น</span>
+</div>
+</div></body></html>`);
+  win.document.close();
+  setTimeout(()=>win.print(), 700);
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModalDirect(); });
+</script>
+</body>
+</html>
