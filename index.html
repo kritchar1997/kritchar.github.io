@@ -270,21 +270,10 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow: hidden;    /* ← CHANGE from 'visible' to 'hidden' */
+  overflow: hidden;
   position: relative;
 }
 
-/* Sticky header row */
-.gantt-header {
-  display: flex;
-  position: sticky;
-  top: 64px; /* below site header */
-  z-index: 50;
-  background: var(--navy);
-  border-bottom: 2px solid rgba(255,255,255,0.1);
-  border-radius: 10px 10px 0 0;
-  overflow: visible;    /* ← CHANGE from 'hidden' to 'visible' */
-}
 
 .gantt-label-col {
   width: 280px;
@@ -314,11 +303,22 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
 .gantt-scroll {
   overflow-x: auto;
   overflow-y: visible;
-  border-top: none;
-  display: flex;          /* ← ADD THIS */
-  flex-direction: column; /* ← ADD THIS */
+  display: flex;
+  flex-direction: column; /* ← ADD: stacks header above rows */
 }
  
+/* Sticky header row */
+.gantt-header {
+  display: flex;
+  position: sticky;
+  top: 64px; /* below site header */
+  z-index: 50;
+  background: var(--navy);
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  border-radius: 10px 10px 0 0;
+  overflow: visible;
+}
+  
 /* Alias so old .gantt-wrap references in legend still work */
 .gantt-wrap { background: transparent; }
 
@@ -468,7 +468,7 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   position: absolute;
   top: 0; bottom: 0;
   width: 2px;
-  background: #22c55e;
+  background: #bfdbfe;
   opacity: 0.85;
   pointer-events: none;
   z-index: 2;
