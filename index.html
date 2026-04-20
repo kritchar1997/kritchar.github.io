@@ -257,11 +257,21 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
 /* ═══════════════════════════════════════════════════════
    GANTT TIMELINE VIEW
 ═══════════════════════════════════════════════════════ */
-.gantt-wrap {
+/* ── Gantt layout ──────────────────────────────────────────
+   Structure:
+     .gantt-outer          – visible boundary, no overflow
+       .gantt-header       – position:sticky top:64px; no overflow
+         .gantt-label-col  – position:sticky left:0
+         .gantt-axis-wrap  – overflow:hidden; shifted by JS scroll sync
+       .gantt-scroll       – overflow-x:auto; the ONLY scroll container
+         .gantt-rows-inner – min-width set to full content width
+────────────────────────────────────────────────────────── */
+.gantt-outer {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: visible;   /* must NOT be hidden/auto — lets sticky work */
+  position: relative;
 }
 
 /* Sticky header row */
@@ -271,7 +281,9 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   top: 64px; /* below site header */
   z-index: 50;
   background: var(--navy);
-  border-bottom: 2px solid var(--border2);
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;    /* clip the axis-wrap shift cleanly */
 }
 
 .gantt-label-col {
@@ -285,13 +297,28 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   text-transform: uppercase;
   color: rgba(255,255,255,0.6);
   border-right: 1px solid rgba(255,255,255,0.1);
+  position: sticky;
+  left: 0;
+  background: var(--navy);
+  z-index: 51;
 }
 
+/* Axis wrapper: overflow hidden; JS shifts it via translateX */
 .gantt-axis-wrap {
   flex: 1;
   overflow: hidden;
   position: relative;
 }
+ 
+/* Scrollable rows container */
+.gantt-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  border-top: none;
+}
+ 
+/* Alias so old .gantt-wrap references in legend still work */
+.gantt-wrap { background: transparent; }
 
 .gantt-months {
   display: flex;
@@ -439,10 +466,11 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   position: absolute;
   top: 0; bottom: 0;
   width: 2px;
-  background: var(--navy);
-  opacity: 0.25;
+  background: #22c55e;
+  opacity: 0.85;
   pointer-events: none;
   z-index: 2;
+  border-radius: 1px
 }
 
 /* Milestone markers */
