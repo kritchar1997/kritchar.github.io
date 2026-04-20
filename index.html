@@ -274,7 +274,6 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   position: relative;
 }
 
-
 .gantt-label-col {
   width: 280px;
   min-width: 280px;
@@ -316,7 +315,8 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   background: var(--navy);
   border-bottom: 2px solid rgba(255,255,255,0.1);
   border-radius: 10px 10px 0 0;
-  overflow: visible;
+  transform: translateX(0);  /* ← ADD THIS for smooth transform */
+  transition: none;          /* ← No animation during scroll */
 }
   
 /* Alias so old .gantt-wrap references in legend still work */
@@ -1673,6 +1673,17 @@ ${item.notes?`<div class="section"><div class="sh">หมายเหตุ</div
   setTimeout(()=>win.print(), 700);
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+  const ganttScroll = document.querySelector('.gantt-scroll');
+  const ganttHeader = document.querySelector('.gantt-header');
+  
+  if (ganttScroll && ganttHeader) {
+    ganttScroll.addEventListener('scroll', function() {
+      ganttHeader.style.transform = `translateX(-${this.scrollLeft}px)`;
+    });
+  }
+});
+  
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModalDirect(); });
 </script>
 </body>
