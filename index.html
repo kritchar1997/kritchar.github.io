@@ -270,7 +270,7 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow: visible;   /* must NOT be hidden/auto — lets sticky work */
+  overflow: hidden;    /* ← CHANGE from 'visible' to 'hidden' */
   position: relative;
 }
 
@@ -283,7 +283,7 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   background: var(--navy);
   border-bottom: 2px solid rgba(255,255,255,0.1);
   border-radius: 10px 10px 0 0;
-  overflow: hidden;    /* clip the axis-wrap shift cleanly */
+  overflow: visible;    /* ← CHANGE from 'hidden' to 'visible' */
 }
 
 .gantt-label-col {
@@ -315,6 +315,8 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
   overflow-x: auto;
   overflow-y: visible;
   border-top: none;
+  display: flex;          /* ← ADD THIS */
+  flex-direction: column; /* ← ADD THIS */
 }
  
 /* Alias so old .gantt-wrap references in legend still work */
