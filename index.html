@@ -271,7 +271,7 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
 .gantt-outer {
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow: hidden; /* MUST stay visible so sticky header works vs page scroll */
+  overflow: visible; /* MUST stay visible so sticky header works vs page scroll */
   background: var(--surface);
 }
 
@@ -353,7 +353,7 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
 /* Scroll container — horizontal only */
 .gantt-scroll {
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: auto;  /*Test auto */
   border-radius: 0 0 10px 10px;
 }
 
