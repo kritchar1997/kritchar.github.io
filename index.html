@@ -271,7 +271,7 @@ td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:
 .gantt-outer {
   border: 1px solid var(--border);
   border-radius: 10px;
-  overflow: visible; /* MUST stay visible so sticky header works vs page scroll */
+  overflow: hidden; /* MUST stay visible so sticky header works vs page scroll */
   background: var(--surface);
 }
 
@@ -1036,7 +1036,7 @@ function renderProgress() {
     <div class="tl-axis">
       <div class="tl-line"></div>
       <div class="tl-today-line" style="left:${todayPct}%">
-        <div class="tl-today-lbl" style="left:${todayPct < 10 ? '0' : '-50'}%; transform:none">วันนี้</div>
+        <div class="tl-today-lbl" style="left:${todayPct < 10 ? '0' : '-50'}%; transform:none">Today</div>
       </div>
     </div>
   `;
@@ -1320,7 +1320,7 @@ function renderTimeline(data) {
       <div class="gli"><div class="gm-block bar" style="position:static;transform:none;font-size:9px;height:16px">AR</div> Accession Review</div>
       <div class="gli" style="margin-left:auto;color:var(--textd);font-size:10px">
         <div style="width:2px;height:14px;background:#22c55e;opacity:0.85;border-radius:1px;margin-right:5px"></div>
-        วันนี้
+        Today
       </div>
     </div>`;
 
