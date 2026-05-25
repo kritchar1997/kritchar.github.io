@@ -1441,9 +1441,9 @@ function renderSummary() {
   const cAR = committees.filter(d => { const dt = parseDate(d.accessionReview); return dt && dt <= TODAY; }).length;
 
   // Overall Progression %
-  // Formula: (Q Submitted + FF Completed + AR Completed) * 4/3
+  // Formula: (Q inProg *0.5 + Q Submitted + FF Completed + AR Completed) * 4/3
   // Max = (25+25+25) * 4/3 = 100%
-  const overallPct = Math.min(100, ((cDone + cFF + cAR) * 4 / 3)).toFixed(1);
+  const overallPct = Math.min(100, (cProg × 0.5 + cDone × 1 + cFF × 1 + cAR × 1) × 4/3).toFixed(1);
 
   // Wide card: two sub-values (committees | working parties)
   function wideCard(cls, lbl, cVal, cTot, wVal, wTot) {
