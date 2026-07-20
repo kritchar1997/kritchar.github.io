@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OECD Accession Tracking Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f4f6f9;
+  --surface:  #ffffff;
+  --sf2:      #f0f4f8;
+  --border:   #dde3ec;
+  --navy:     #1a3a6b;
+  --navym:    #2563a8;
+  --green:    #16a34a;
+  --green-lt: #f0fdf4;
+  --green-bd: #86efac;
+  --amber:    #d97706;
+  --amber-lt: #fffbeb;
+  --amber-bd: #fcd34d;
+  --gray:     #6b7280;
+  --gray-lt:  #f9fafb;
+  --gray-bd:  #d1d5db;
+  --text:     #111827;
+  --textm:    #374151;
+  --textd:    #6b7280;
+  --textw:    #9ca3af;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); font-size:14px; line-height:1.6; }
+
+/* HEADER */
+header { background:#ffffff; border-bottom:2px solid #e5e7eb; padding:0 36px; display:flex; align-items:center; justify-content:space-between; height:64px; position:sticky; top:0; z-index:100; box-shadow:0 1px 8px rgba(0,0,0,0.07); }
+.logo { display:flex; align-items:center; gap:14px; }
+.logo-text h1 { font-size:16px; font-weight:700; color:#1a3a6b; line-height:1.2; }
+.logo-text p { font-size:11px; color:#9ca3af; }
+.header-meta { display:flex; align-items:center; gap:10px; font-size:12px; color:#6b7280; }
+.lang-toggle { display:flex; background:#f4f6f9; border:1px solid #dde3ec; border-radius:6px; overflow:hidden; }
+.lang-btn { padding:4px 10px; background:none; border:none; color:#6b7280; font-family:'Sarabun',sans-serif; font-size:11px; font-weight:700; cursor:pointer; letter-spacing:0.5px; transition:all 0.15s; }
+.lang-btn.active { background:#1a3a6b; color:white; border-radius:5px; }
+.lang-btn:hover:not(.active) { color:#1a3a6b; }
+.live-dot { width:7px; height:7px; background:#4ade80; border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+.main { padding:28px 36px; max-width:1400px; margin:0 auto; }
+
+/* SECTION HEADING */
+.sh { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--textd); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.sh::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* SUMMARY CARDS */
+.sum-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
+.sum-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 22px; border-top:3px solid transparent; }
+.sum-card.cn { border-top-color:var(--navy); }
+.sum-card.cb { border-top-color:var(--navym); }
+.sum-card.cg { border-top-color:var(--green); }
+.sum-card.ca { border-top-color:var(--amber); }
+.sum-card.cp { border-top-color:#8b5cf6; }
+/* Wide card: two sub-values side by side */
+.sum-subrow { display:flex; gap:20px; margin-top:2px; }
+.sum-sub-item { display:flex; flex-direction:column; }
+.sum-sub-val { font-size:28px; font-weight:800; color:var(--text); line-height:1; }
+.sum-sub-val span { font-size:16px; font-weight:500; color:var(--textd); }
+.sum-sub-lbl { font-size:11px; color:var(--textd); margin-top:2px; }
+.slbl { font-size:11px; font-weight:600; color:var(--textd); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; }
+.sval { font-size:30px; font-weight:800; color:var(--text); line-height:1; margin-bottom:4px; }
+.ssub { font-size:12px; color:var(--textd); }
+
+/* PROGRESS PANEL */
+.prog-panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px 26px; margin-bottom:28px; }
+.prog-title { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--navy); margin-bottom:20px; border-left:3px solid var(--navy); padding-left:10px; }
+
+/* QUESTIONNAIRE 3-STATE BAR */
+.q-section { margin-bottom:24px; }
+.q-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.q-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--textm); }
+.q-counts { font-size:12px; color:var(--textd); display:flex; gap:14px; }
+.q-count-item { display:flex; align-items:center; gap:5px; }
+.q-dot { width:9px; height:9px; border-radius:50%; }
+
+/* Segmented bar */
+.seg-track { height:22px; background:var(--sf2); border-radius:99px; border:1px solid var(--border); overflow:hidden; display:flex; }
+.seg-fill { height:100%; transition:width 0.7s ease; }
+.seg-green  { background:var(--green); }
+.seg-amber  { background:#f59e0b; }
+.seg-gray   { background:#cbd5e1; }
+
+.q-legend { display:flex; gap:18px; margin-top:8px; font-size:11px; color:var(--textd); flex-wrap:wrap; }
+.ql-item { display:flex; align-items:center; gap:5px; }
+.ql-dot { width:9px; height:9px; border-radius:50%; }
+
+/* 6-MONTH TIMELINE */
+.tl-section { border-top:1px solid var(--border); padding-top:20px; }
+.tl-section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--textm); margin-bottom:4px; }
+.tl-subtitle { font-size:11px; color:var(--textd); margin-bottom:16px; }
+
+.tl-axis { position:relative; height:44px; margin:0 0 0 0; }
+.tl-line { position:absolute; top:20px; left:0; right:0; height:2px; background:var(--border); border-radius:2px; }
+.tl-today-line { position:absolute; top:6px; width:2px; background:var(--navy); border-radius:2px; height:30px; }
+.tl-today-lbl { position:absolute; top:0; font-size:9px; font-weight:700; color:var(--navy); transform:translateX(-50%); white-space:nowrap; }
+.tl-end-lbl { position:absolute; top:0; right:0; font-size:9px; color:var(--textw); }
+
+.tl-months { display:flex; margin-bottom:6px; }
+.tl-month { flex:1; text-align:center; font-size:10px; color:var(--textw); font-weight:600; padding:3px 0; border-right:1px solid var(--border); }
+.tl-month:last-child { border-right:none; }
+.tl-month.cur { color:var(--navy); background:rgba(26,58,107,0.05); border-radius:4px; }
+
+.tl-events { display:flex; flex-direction:column; gap:4px; margin-top:4px; }
+.tl-row { position:relative; height:28px; }
+.tl-event {
+  position:absolute; height:24px;
+  border-radius:5px; display:flex; align-items:center;
+  padding:0 8px; font-size:10px; font-weight:600;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  cursor:pointer; transition:opacity 0.15s;
+  max-width:220px;
+  border:1px solid transparent;
+}
+.tl-event:hover { opacity:0.85; }
+.tl-event.ff { background:#fffbeb; border-color:#fcd34d; color:#92400e; }
+.tl-event.ar { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+.tl-dot-only { position:absolute; width:10px; height:10px; border-radius:50%; top:8px; transform:translateX(-50%); cursor:pointer; }
+.tl-dot-only.ff { background:#f59e0b; border:2px solid white; box-shadow:0 0 0 1.5px #f59e0b; }
+.tl-dot-only.ar { background:#3b82f6; border:2px solid white; box-shadow:0 0 0 1.5px #3b82f6; }
+
+.tl-empty { font-size:12px; color:var(--textd); padding:12px 0; font-style:italic; }
+
+.tl-legend { display:flex; gap:16px; margin-top:10px; font-size:11px; color:var(--textd); }
+.tl-li { display:flex; align-items:center; gap:5px; }
+.tl-ld { width:10px; height:10px; border-radius:3px; }
+.tl-ld-ff { background:#f59e0b; }
+.tl-ld-ar { background:#3b82f6; }
+
+/* LEGEND BAR */
+.legend-bar { display:flex; align-items:center; gap:18px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 16px; margin-bottom:18px; font-size:12px; color:var(--textd); flex-wrap:wrap; }
+.legend-bar strong { color:var(--textm); margin-right:4px; }
+.li { display:flex; align-items:center; gap:6px; }
+.ld { width:10px; height:10px; border-radius:3px; }
+.ld-g { background:var(--green); }
+.ld-a { background:#f59e0b; }
+.ld-gr { background:var(--gray-bd); }
+
+/* CONTROLS */
+.controls { display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; align-items:center; }
+.search-box { flex:1; min-width:260px; position:relative; }
+.search-box input { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 14px 9px 38px; color:var(--text); font-family:'Sarabun',sans-serif; font-size:13px; outline:none; transition:border-color 0.15s; }
+.search-box input:focus { border-color:var(--navym); }
+.search-box input::placeholder { color:var(--textw); }
+.search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--textw); }
+.filter-btn { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 14px; color:var(--textm); font-family:'Sarabun',sans-serif; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+.filter-btn:hover { border-color:var(--navym); color:var(--navy); }
+.filter-btn.active { background:var(--navy); border-color:var(--navy); color:white; }
+.view-toggle { display:flex; background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.vbtn { padding:9px 13px; background:none; border:none; color:var(--textd); cursor:pointer; font-size:14px; transition:all 0.15s; }
+.vbtn.active { background:var(--navy); color:white; }
+.count-tag { background:var(--navy); color:white; border-radius:99px; padding:1px 8px; font-size:10px; font-weight:600; }
+
+/* COMMITTEE GROUP */
+.committee-group { margin-bottom:32px; }
+.committee-hdr { background:var(--navy); border-radius:10px; padding:10px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; transition:background 0.15s; flex-wrap:nowrap; border:2px solid transparent; transition:background 0.15s, border-color 0.15s; }
+.committee-hdr:hover { background:var(--navym); }
+.ch-left { display:flex; align-items:center; gap:12px; }
+.ch-icon { width:34px; height:34px; background:rgba(255,255,255,0.15); border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.ch-lbl { font-size:10px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+.ch-name { font-weight:700; font-size:14px; color:white; }
+.ch-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.ch-tag { background:rgba(255,255,255,0.15); border-radius:5px; padding:3px 9px; font-size:11px; font-weight:600; color:rgba(255,255,255,0.8); white-space:nowrap; }
+
+/* WP CARDS */
+.wp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:12px; }
+.task-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; cursor:pointer; transition:border-color 0.15s,box-shadow 0.15s,transform 0.15s; animation:fadeUp 0.35s ease forwards; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.task-card:hover { border-color:var(--navym); box-shadow:0 4px 16px rgba(26,58,107,0.1); transform:translateY(-2px); }
+.card-hdr { padding:14px 18px 12px; border-bottom:1px solid var(--border); background:var(--sf2); }
+.card-type { font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--textw); margin-bottom:4px; }
+.card-wp { font-weight:700; font-size:13px; line-height:1.4; color:var(--text); }
+.card-body { padding:14px 18px; }
+.card-agency { font-size:12px; color:var(--navym); font-weight:600; margin-bottom:8px; display:flex; align-items:flex-start; gap:5px; }
+.card-progress { font-size:12px; color:var(--textd); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:12px; line-height:1.5; }
+.chip-row { display:flex; gap:6px; flex-wrap:wrap; }
+
+/* STATUS CHIPS — Questionnaire 3-state */
+.chip { border-radius:5px; padding:3px 8px; font-size:10px; font-weight:600; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+.chip-lbl { font-size:8.5px; font-weight:700; opacity:.6; text-transform:uppercase; }
+/* Questionnaire states */
+.chip-q-none  { background:var(--gray-lt); border:1px solid var(--gray-bd); color:var(--gray); }
+.chip-q-prog  { background:var(--amber-lt); border:1px solid var(--amber-bd); color:var(--amber); }
+.chip-q-done  { background:var(--green-lt); border:1px solid var(--green-bd); color:var(--green); }
+/* FF / AR date-based — done=green, pending=gray, na=light gray */
+.chip-done    { background:var(--green-lt); border:1px solid var(--green-bd); color:var(--green); }
+.chip-pending { background:#f1f5f9;         border:1px solid #94a3b8;         color:#475569; }
+.chip-na      { background:var(--gray-lt);  border:1px solid var(--gray-bd);  color:var(--gray); }
+
+/* TABLE */
+.table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+table { width:100%; border-collapse:collapse; }
+thead th { background:var(--sf2); padding:10px 14px; text-align:left; font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--textd); border-bottom:1px solid var(--border); white-space:nowrap; }
+tbody tr { border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:#eff6ff; }
+td { padding:10px 14px; vertical-align:middle; font-size:12px; color:var(--textm); }
+td.tdt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+.td-c { font-size:11px; font-weight:700; color:var(--navy); }
+.td-a { font-size:11px; font-weight:600; color:var(--navym); }
+
+/* MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(17,24,39,0.45); backdrop-filter:blur(3px); z-index:200; display:none; align-items:center; justify-content:center; padding:24px; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:12px; width:100%; max-width:800px; max-height:90vh; overflow-y:auto; animation:slideUp 0.25s ease; box-shadow:0 20px 60px rgba(0,0,0,0.15); }
+@keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.m-hdr { padding:20px 24px 18px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--navy); z-index:10; display:flex; justify-content:space-between; align-items:flex-start; }
+.m-badge { font-size:10px; font-weight:700; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; }
+.m-title { font-size:17px; font-weight:700; line-height:1.3; color:white; }
+.m-close { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:7px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:white; font-size:16px; transition:all 0.15s; flex-shrink:0; margin-left:14px; }
+.m-close:hover { background:rgba(255,255,255,0.25); }
+.m-body { padding:22px 24px; }
+.m-section { margin-bottom:20px; }
+.m-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--textd); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.m-lbl::after { content:''; flex:1; height:1px; background:var(--border); }
+.m-content { font-size:13px; line-height:1.75; color:var(--textm); }
+.m-content.hl { color:var(--text); font-weight:500; }
+.ap { display:inline-block; background:#eff6ff; border:1px solid #bfdbfe; border-radius:5px; padding:3px 9px; font-size:12px; font-weight:500; color:var(--navym); margin:2px; }
+.sp { display:inline-block; background:var(--sf2); border:1px solid var(--border); border-radius:5px; padding:3px 9px; font-size:12px; color:var(--textm); margin:2px; }
+.legal-item { background:var(--sf2); border:1px solid var(--border); border-left:3px solid var(--navy); border-radius:7px; padding:9px 13px; margin-bottom:7px; font-size:12px; color:var(--textm); }
+.legal-code { font-size:10px; font-weight:700; color:var(--navy); margin-bottom:2px; text-transform:uppercase; }
+.tl-grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.tlc { border-radius:8px; padding:12px 14px; text-align:center; border:1px solid; }
+.tlc.done    { background:var(--green-lt); border-color:var(--green-bd); }
+.tlc.pending { background:#f1f5f9;         border-color:#94a3b8; }
+.tlc.na      { background:var(--gray-lt);  border-color:var(--gray-bd); }
+.tlc-lbl { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--textd); margin-bottom:5px; }
+.tlc-date { font-size:13px; font-weight:700; }
+.tlc.done .tlc-date    { color:var(--green); }
+.tlc.pending .tlc-date { color:#475569; }
+.tlc.na .tlc-date      { color:var(--gray); }
+.tlc-st { font-size:10px; font-weight:600; margin-top:3px; }
+.tlc.done .tlc-st    { color:var(--green); }
+.tlc.pending .tlc-st { color:#475569; }
+.tlc.na .tlc-st      { color:var(--gray); }
+/* Questionnaire 3-state in modal */
+.tlc.q-none { background:var(--gray-lt);  border-color:var(--gray-bd); }
+.tlc.q-prog { background:var(--amber-lt); border-color:var(--amber-bd); }
+.tlc.q-done2{ background:var(--green-lt); border-color:var(--green-bd); }
+.tlc.q-none .tlc-date { color:var(--gray); }
+.tlc.q-prog .tlc-date { color:var(--amber); }
+.tlc.q-done2 .tlc-date{ color:var(--green); }
+.tlc.q-none .tlc-st { color:var(--gray); }
+.tlc.q-prog .tlc-st { color:var(--amber); }
+.tlc.q-done2 .tlc-st{ color:var(--green); }
+
+.notes-box { background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px 14px; font-size:12px; color:var(--textm); line-height:1.7; }
+.print-btn { background:var(--navy); border:none; border-radius:8px; padding:10px 20px; color:white; font-family:'Sarabun',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:background 0.15s; }
+.print-btn:hover { background:var(--navym); }
+.m-actions { padding:14px 24px 18px; border-top:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.empty-state { text-align:center; padding:52px 20px; color:var(--textd); }
+
+@media(max-width:900px) {
+  .sum-row { grid-template-columns:repeat(2,1fr); }
+  header,.main { padding-left:16px; padding-right:16px; }
+  .tl-grid3 { grid-template-columns:repeat(2,1fr); }
+  .wp-grid { grid-template-columns:1fr; }
+  .committee-hdr { flex-direction:column; align-items:flex-start; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   GANTT TIMELINE VIEW
+   Architecture:
+     .gantt-outer       border/radius wrapper, overflow:visible
+       .gantt-header    sticky top:64px; display:flex; overflow:hidden
+         .gantt-lhdr    left label header, 280px, sticky works (outside scroll)
+         .gantt-axis-wrap  flex:1; overflow:hidden; JS translateX for sync
+           .gantt-axis  year ruler + months (full axisW wide)
+       .gantt-scroll    overflow-x:auto; the ONLY scroll container
+         .gantt-inner   min-width:totalW; rows live here
+           .gantt-row   display:flex — label + chart in SAME row = auto height
+             .gantt-lcell  280px, position:sticky left:0
+             .gantt-chart  flex:1
+═══════════════════════════════════════════════════════ */
+
+.gantt-outer {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: visible; /* MUST stay visible so sticky header works vs page scroll */
+  background: var(--surface);
+}
+
+/* Sticky header — sits OUTSIDE scroll container */
+.gantt-header {
+  display: flex;
+  position: sticky;
+  top: 64px;
+  z-index: 40;
+  background: var(--navy);
+  border-radius: 10px 10px 0 0;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  overflow: hidden; /* clips to visible container width — no horizontal overflow */
+}
+
+.gantt-lhdr {
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.gantt-axis-wrap {
+  flex: 1;
+  overflow: hidden; /* JS shifts inner content via translateX */
+}
+
+.gantt-axis { /* year ruler + months — full axis width, shifted by JS */ }
+
+.gantt-year-ruler {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.gantt-year-cell {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.8px;
+  padding: 3px 4px;
+}
+
+.gantt-year-cell.year-border {
+  border-left: 1px solid rgba(255,255,255,0.2);
+}
+
+.gantt-months { display: flex; height: 26px; }
+
+.gantt-month {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.55);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  padding: 0 4px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.gantt-month.cur { color: white; background: rgba(255,255,255,0.08); }
+.gantt-month.year-start { border-left: 1px solid rgba(255,255,255,0.2); }
+
+/* Scroll container — horizontal only */
+.gantt-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  border-radius: 0 0 10px 10px;
+}
+
+/* Inner wrapper — sets minimum total width */
+.gantt-inner { display: flex; flex-direction: column; }
+
+/* Each row: label + chart side by side — height auto-shared */
+.gantt-row {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.gantt-row:last-child { border-bottom: none; }
+.gantt-row:hover { background: #f0f6ff; }
+.gantt-row.committee-row { background: #f8fafc; }
+.gantt-row.committee-row:hover { background: #edf3fc; }
+.gantt-row.group-row { background: #e8edf5; cursor: default; }
+.gantt-row.group-row:hover { background: #dde6f2; }
+
+/* Label cell — sticky left so name stays visible while chart scrolls */
+.gantt-lcell {
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
+  padding: 8px 14px 8px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  border-right: 1px solid var(--border);
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  z-index: 5;
+}
+.gantt-row.committee-row .gantt-lcell { background: #f8fafc; padding-left: 16px; }
+.gantt-row.group-row .gantt-lcell {
+  background: #e8edf5;
+  padding: 0 16px;
+  justify-content: center;
+}
+.gantt-row:hover .gantt-lcell { background: #f0f6ff; }
+.gantt-row.committee-row:hover .gantt-lcell { background: #edf3fc; }
+.gantt-row.group-row:hover .gantt-lcell { background: #dde6f2; }
+
+/* Chart area — fills remaining width */
+.gantt-chart {
+  flex: 1;
+  position: relative;
+  background-image: repeating-linear-gradient(
+    90deg, transparent, transparent calc(var(--col-w) - 1px),
+    rgba(0,0,0,0.04) calc(var(--col-w) - 1px), rgba(0,0,0,0.04) var(--col-w)
+  );
+  background-size: var(--col-w) 100%;
+}
+
+/* Row label text styles */
+.row-type-tag {
+  font-size: 8px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--textw); line-height: 1;
+}
+.row-name { font-size: 11.5px; font-weight: 600; color: var(--text); line-height: 1.35; }
+.gantt-row.committee-row .row-name { font-size: 12px; font-weight: 700; color: var(--navy); }
+.gantt-row.group-row .row-name { font-size: 11px; font-weight: 800; color: var(--navy); }
+.row-agency { font-size: 10px; color: var(--textd); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Today line */
+.today-line {
+  position: absolute; top: 0; bottom: 0; width: 2px;
+  background: #22c55e; opacity: 0.85; pointer-events: none;
+  z-index: 2; border-radius: 1px;
+}
+
+/* Year separator in chart */
+.gantt-year-sep {
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: rgba(26,58,107,0.18); z-index: 3; pointer-events: none;
+}
+.gantt-year-lbl-row {
+  position: absolute; top: 2px; left: 3px; font-size: 8px;
+  font-weight: 800; color: var(--navym); letter-spacing: 0.3px;
+  pointer-events: none; opacity: 0.7;
+}
+
+/* Milestone blocks */
+.gm-block {
+  height: 18px; padding: 0 5px; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; letter-spacing: 0.3px;
+  white-space: nowrap; border: 1.5px solid rgba(255,255,255,0.6);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12); cursor: pointer;
+  transform: translate(-50%, -50%); position: absolute; top: 50%;
+  user-select: none; transition: opacity 0.15s;
+}
+.gm-block:hover { opacity: 0.8; }
+.gm-block.bq  { background: #16a34a; color: white; }
+.gm-block.bff { background: #f59e0b; color: white; }
+.gm-block.bar { background: #3b82f6; color: white; }
+
+/* Legend */
+.tl-gantt-legend {
+  display: flex; align-items: center; gap: 20px;
+  padding: 9px 16px; background: var(--sf2);
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 11px; color: var(--textd); flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.gli { display: flex; align-items: center; gap: 6px; }
+
+/* Empty state */
+.gantt-empty { padding: 48px; text-align: center; color: var(--textd); font-size: 13px; }
+
+@media(max-width:768px) {
+  .gantt-lhdr, .gantt-lcell { width: 180px; min-width: 180px; }
+}
+
+/* ── Fact-finding Mission Calendar Grid ─────────────────── */
+.ff-cal-section {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.ff-cal-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ff-cal-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--textd);
+  flex-wrap: wrap;
+}
+
+.ff-leg-item { display: flex; align-items: center; gap: 5px; }
+
+.ff-leg-dot {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+}
+
+.ff-past    { background: var(--green); }
+.ff-upcoming{ background: #3b82f6; }
+.ff-today-dot{ background: var(--navy); opacity: 0.3; border: 1.5px solid var(--navy); }
+
+
+
+/* ── Expanded month cards ────────────────────────────── */
+.ff-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.ff-month-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+  transition: box-shadow 0.15s;
+}
+
+.ff-month-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+
+/* State variants */
+.ff-card-past     { border-color: var(--green-bd);   background: var(--green-lt); }
+.ff-card-upcoming { border-color: #bfdbfe; background: #eff6ff; }
+.ff-card-now      { border: 2px solid var(--navy); }
+
+/* Card header */
+.ff-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 10px 5px;
+  background: rgba(0,0,0,0.04);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.ff-card-month {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--textm);
+}
+
+.ff-card-now .ff-card-month { color: var(--navy); }
+.ff-card-past .ff-card-month { color: var(--green); }
+.ff-card-upcoming .ff-card-month { color: #1d4ed8; }
+
+.ff-card-year {
+  font-size: 9px;
+  color: var(--textw);
+  font-weight: 600;
+}
+
+/* Card body */
+.ff-card-body { padding: 7px 8px; }
+.ff-card-empty {
+  padding: 8px;
+  font-size: 11px;
+  color: var(--textw);
+  text-align: center;
+}
+
+.ff-card-section { margin-bottom: 5px; }
+.ff-card-section:last-child { margin-bottom: 0; }
+
+.ff-card-type {
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--textw);
+  margin-bottom: 3px;
+}
+
+/* Mission line item */
+.ff-mission-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 10px;
+  line-height: 1.35;
+  padding: 1px 0;
+  cursor: pointer;
+  color: var(--textm);
+  border-radius: 3px;
+  transition: background 0.1s;
+}
+
+.ff-mission-line:hover { background: rgba(0,0,0,0.05); }
+
+.ff-ml-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.ff-ml-done .ff-ml-dot { background: var(--green); }
+.ff-ml-up   .ff-ml-dot { background: #3b82f6; }
+
+@media(max-width:900px) {
+  .ff-cards-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media(max-width:600px) {
+  .ff-cards-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Summary count line */
+.ff-cal-counts {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--textd);
+  flex-wrap: wrap;
+}
+.ff-count-item { display: flex; align-items: center; gap: 6px; }
+.ff-count-lbl  { color: var(--textm); font-weight: 600; }
+
+@media(max-width:900px) {
+  .ff-row-label { width: 70px; min-width: 70px; font-size: 9px; }
+  .ff-month-tile { min-width: 28px; height: 28px; }
+}
+
+
+/* ── Card inline expand panel ─────────────────────────── */
+.card-expand {
+  display: none;
+  border-top: 1px solid var(--expand-bd, var(--border));
+  background: var(--expand-bg, var(--surface));
+  padding: 16px 18px 14px;
+  animation: expandIn 0.2s ease;
+}
+@keyframes expandIn {
+  from { opacity:0; transform:translateY(-6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card-expand.open { display: block; }
+.task-card.expanded { border-color: var(--navym); box-shadow: 0 4px 18px rgba(26,58,107,0.12); }
+
+/* Committee header expand */
+.committee-expand {
+  display: none;
+  background: var(--expand-bg, var(--surface));
+  border: 2px solid var(--expand-bd, var(--navym));
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  margin-bottom: 12px;
+  animation: expandIn 0.2s ease;
+  overflow: hidden;
+  padding: 14px 16px 12px;
+}
+.committee-expand.open { display: block; }
+
+/* When committee header has an open expand panel, remove its bottom rounding */
+.committee-hdr.has-expand-open {
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 0;
+  border-color: var(--navym);
+}
+
+/* Expand section labels */
+.exp-section { margin-bottom: 14px; }
+.exp-section:last-child { margin-bottom: 0; }
+.exp-lbl {
+  font-size: 9px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--textd);
+  margin-bottom: 5px; display: flex; align-items: center; gap: 8px;
+}
+.exp-lbl::after { content:''; flex:1; height:1px; background:var(--border); }
+.exp-val { font-size: 12px; color: var(--textm); line-height: 1.65; }
+.exp-val.hl { color: var(--text); font-weight: 500; }
+.exp-pill {
+  display: inline-block; background: #eff6ff; border: 1px solid #bfdbfe;
+  border-radius: 4px; padding: 2px 8px; font-size: 11px; color: var(--navym);
+  margin: 2px; font-weight: 500;
+}
+.exp-sh-pill {
+  display: inline-block; background: var(--sf2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2px 8px; font-size: 11px; color: var(--textm); margin: 2px;
+}
+.exp-legal {
+  background: var(--sf2); border: 1px solid var(--border); border-left: 3px solid var(--navy);
+  border-radius: 6px; padding: 7px 11px; margin-bottom: 6px; font-size: 11px; color: var(--textm);
+}
+.exp-legal-code { font-size: 9px; font-weight: 700; color: var(--navy); margin-bottom: 1px; text-transform: uppercase; }
+
+/* TL table inside expand */
+.exp-tl { width:100%; border-collapse:collapse; font-size:11px; }
+.exp-tl th { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--textd); padding:5px 10px; border-bottom:1px solid var(--border); text-align:left; }
+.exp-tl td { padding:7px 10px; border-bottom:1px solid var(--sf2); color:var(--textm); }
+.exp-tl tr:last-child td { border-bottom:none; }
+
+.exp-print-btn {
+  margin-top: 12px;
+  background: var(--navy); border: none; border-radius: 7px;
+  padding: 8px 16px; color: white;
+  font-family: 'Sarabun', sans-serif; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.exp-print-btn:hover { background: var(--navym); }
+
+/* Expand chevron on cards */
+.card-chevron {
+  font-size: 10px; color: var(--textw); margin-left: auto;
+  transition: transform 0.2s; display: inline-block;
+}
+.task-card.expanded .card-chevron { transform: rotate(180deg); }
+
+
+/* ── Progress pipeline cards ──────────────────────────── */
+.prog-card {
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.12s;
+  background: var(--surface);
+  animation: fadeUp 0.35s ease forwards;
+}
+.prog-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.10); transform: translateY(-2px); }
+.prog-card.expanded { transform: none; }
+
+/* Top colour bar */
+.pc-bar { height: 4px; width: 100%; }
+
+/* Card body */
+.pc-body { padding: 11px 13px 10px; }
+
+/* Header row: step badge + name */
+.pc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.pc-badge {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: white; flex-shrink: 0;
+}
+.pc-names { flex: 1; min-width: 0; }
+.pc-type { font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--textw); margin-bottom: 2px; }
+.pc-name { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.pc-agency { font-size: 10px; color: var(--textd); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-chevron { font-size: 9px; color: var(--textw); transition: transform 0.2s; flex-shrink: 0; margin-top: 10px; }
+.prog-card.expanded .pc-chevron { transform: rotate(180deg); }
+
+/* Pipeline row */
+.pc-pipeline { display: flex; align-items: flex-start; gap: 0; }
+.pc-step { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.pc-step-circle {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; flex-shrink: 0;
+  border: 2px solid transparent;
+}
+.pc-step-lbl { font-size: 7.5px; font-weight: 500; color: var(--textw); text-align: center; line-height: 1.25; }
+.pc-step-lbl.done { color: var(--textm); font-weight: 700; }
+.pc-connector { height: 2px; flex: 1; margin-top: 9px; align-self: flex-start; min-width: 6px; }
+
+/* Committee card wrapper — no longer navy bar, uses prog-card */
+.committee-group { margin-bottom: 32px; }
+.wp-prog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
+
+/* Committee-level prog card — slightly larger */
+.pc-committee { border-radius: 10px 10px 0 0; }
+.pc-committee .pc-name { font-size: 13px; }
+
+/* Committee group header label */
+.cg-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--textd); margin-bottom: 8px;
+}
+.cg-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+@media(max-width:768px) {
+  .wp-prog-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ── New Summary Section ───────────────────────────────── */
+/* Donut + Q-bars row */
+.sum-donut-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: stretch;
+}
+.sum-qbars-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+}
+@media(max-width:900px) {
+  .sum-donut-row { grid-template-columns: 1fr; }
+}
+
+
+/* Left: donut + legend */
+.sum-donut-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 16px 14px;
+}
+.sum-donut-title {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--navy); border-left: 3px solid var(--navy);
+  padding-left: 8px; margin-bottom: 14px;
+}
+.sum-donut-body {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.sum-donut-legend {
+  display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px 16px; width: 100%;
+}
+.sdl-item {
+  display: flex; align-items: center; gap: 8px; cursor: default;
+}
+.sdl-dot {
+  width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0;
+}
+.sdl-lbl { font-size: 11px; color: var(--textm); flex: 1; }
+.sdl-val { font-size: 12px; font-weight: 800; color: var(--text); }
+
+/* Progress gauge inside donut wrap */
+.sum-gauge-wrap { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.sum-gauge-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 6px;
+}
+.sum-gauge-lbl { font-size: 10px; font-weight: 700; color: var(--textd); text-transform: uppercase; letter-spacing: .5px; }
+.sum-gauge-pct { font-size: 20px; font-weight: 800; color: var(--navy); }
+.sum-gauge-track {
+  height: 10px; background: #e5e7eb; border-radius: 99px;
+  overflow: hidden; margin-bottom: 4px;
+}
+.sum-gauge-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, #1a3a6b, #2563a8);
+  transition: width 0.8s ease;
+}
+.sum-gauge-sub { font-size: 9.5px; color: var(--textw); text-align: center; }
+
+/* Right: 4 metric cards in 2×2 */
+.sum-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+}
+.sum-card-new {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  border-top: 3px solid transparent;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.scn-icon { font-size: 22px; margin-bottom: 4px; }
+.scn-lbl {
+  font-size: 9px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--textd); margin-bottom: 2px;
+}
+.scn-val-row { display: flex; align-items: baseline; gap: 4px; }
+.scn-num { font-size: 32px; font-weight: 800; line-height: 1; }
+.scn-denom { font-size: 14px; font-weight: 500; color: var(--textw); }
+.scn-sub { font-size: 10px; color: var(--textd); margin-top: 1px; }
+.scn-bar-track { height: 4px; background: #e5e7eb; border-radius: 99px; margin-top: 8px; overflow: hidden; }
+.scn-bar-fill { height: 100%; border-radius: 99px; }
+
+@media(max-width:900px) {
+  .sum-section { grid-template-columns: 1fr; }
+  .sum-cards { grid-template-columns: repeat(2,1fr); }
+}
+@media(max-width:540px) {
+  .sum-cards { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="data:image/png;base64,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" alt="Thailand OECD" style="height:40px;width:auto;object-fit:contain;margin-right:4px">
+    <div class="logo-text">
+      <h1>OECD Accession Monitoring Dashboard</h1>
+      <p data-i18n="subtitle">ระบบติดตามการขับเคลื่อนการเข้าเป็นสมาชิก OECD - ประเทศไทย</p>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="live-dot"></div>
+    <span id="currentDate"></span>
+    <span style="background:#1a3a6b;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:600;color:white;letter-spacing:0.5px">NESDC</span>
+    <!-- Language toggle -->
+    <div class="lang-toggle">
+      <button id="btnTH" class="lang-btn active" onclick="setLang('th')">TH</button>
+      <button id="btnEN" class="lang-btn"        onclick="setLang('en')">EN</button>
+    </div>
+    <button onclick="printOverallFactSheet()" id="btnOverallPrint" style="background:#1a3a6b;border:1px solid #1a3a6b;border-radius:7px;padding:6px 13px;color:white;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background 0.15s;white-space:nowrap" onmouseover="this.style.background='#2563a8'" onmouseout="this.style.background='#1a3a6b'" data-i18n-btn="printOverall">🖨 <span data-i18n="printOverall">Overall Fact Sheet</span></button>
+  </div>
+</header>
+
+<div class="main">
+
+  <div id="sumRow"></div>
+
+  <div id="sumDonut"></div>
+
+  <div class="prog-panel">
+    <!-- Fact-finding Mission Calendar Grid -->
+    <div class="ff-cal-section">
+      <div class="ff-cal-header">
+        <div class="prog-title" style="margin-bottom:0" data-i18n="ffCalTitle">Fact-finding Mission — ปฏิทินกำหนดการ</div>
+        <div class="ff-cal-legend">
+          <div class="ff-leg-item"><div class="ff-leg-dot ff-past"></div> <span data-i18n="ffComplete">ผ่านแล้ว (Completed)</span></div>
+          <div class="ff-leg-item"><div class="ff-leg-dot ff-upcoming"></div> <span data-i18n="ffUpcoming">ยังไม่ถึง (Upcoming)</span></div>
+          <div class="ff-leg-item"><div class="ff-leg-dot ff-today-dot"></div> <span data-i18n="ffToday">เดือนปัจจุบัน</span></div>
+        </div>
+      </div>
+      <!-- Two-row layout: Committee top, Working Party bottom -->
+      <div class="ff-cal-rows" id="ffCalGrid"></div>
+      <!-- Summary counts -->
+      <div class="ff-cal-counts" id="ffCalCounts"></div>
+    </div>
+
+  </div>
+
+
+
+  <div class="controls">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="ค้นหา คณะกรรมการ หน่วยงาน หรือคณะทำงาน..." data-i18n-placeholder="searchPlaceholder" oninput="applyFilters()">
+    </div>
+    <div id="filterBtns" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    <div class="view-toggle">
+      <button class="vbtn active" id="btnGrid"  onclick="setView('grid')"  title="Cards">⊞</button>
+      <button class="vbtn"        id="btnTable" onclick="setView('timeline')" title="Timeline">📅</button>
+    </div>
+  </div>
+
+  <div class="sh"><span data-i18n="committeesWPs">คณะกรรมการและคณะทำงาน</span> <span class="count-tag" id="visCount">0</span></div>
+
+  <div id="mainContent"></div>
+
+  <div id="timelineWrap" style="display:none">
+    <div id="timelineContent"></div>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" style="position:fixed;inset:0;background:rgba(244,246,249,0.92);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+  <div style="width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+  <div style="font-size:14px;font-weight:600;color:var(--navy)">กำลังโหลดข้อมูลจาก Google Sheets…</div>
+  <div id="loadingMsg" style="font-size:12px;color:var(--textd)">กรุณารอสักครู่</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="m-hdr">
+      <div style="flex:1">
+        <div class="m-badge" id="mBadge"></div>
+        <div class="m-title" id="mTitle"></div>
+      </div>
+      <button class="m-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="m-body" id="mBody"></div>
+    <div class="m-actions">
+      <button class="print-btn" onclick="printFactSheet()">🖨 <span data-i18n="printFactSheet">พิมพ์ Fact Sheet</span></button>
+      <span style="font-size:12px;color:var(--textd)" data-i18n="modalSubtitle">รายงานข้อมูลรายคณะทำงาน</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+   questionnaireStatus: 'none' | 'in_progress' | 'submitted'
+═══════════════════════════════════════════════════════ */
+const rawData = [
+  { id:0, type:'committee', committee:"Corporate Governance Committee (CGC)",
+    workingParty:"Corporate Governance Committee (CGC) — ระดับคณะกรรมการ",
+    agency:"สำนักงานคณะกรรมการนโยบายรัฐวิสาหกิจ กระทรวงการคลัง*\nสำนักงานคณะกรรมการกำกับหลักทรัพย์และตลาดหลักทรัพย์ (กลต.)",
+    stakeholders:"กรมพัฒนาธุรกิจการค้า กระทรวงพาณิชย์\nสำนักงานคณะกรรมการป้องกันและปราบปรามการทุจริตแห่งชาติ\nตลาดหลักทรัพย์แห่งประเทศไทย\nตลาดหลักทรัพย์ เอ็มเอไอ\nกองทุนบำเหน็จบำนาญข้าราชการ\nสภาวิชาชีพบัญชีในพระบรมราชูปถัมภ์",
+    objectives:"- ร่วมส่งเสริมประสิทธิภาพเศรษฐกิจ การเติบโตอย่างยั่งยืน และความมั่นคงทางการเงินผ่านการพัฒนานโยบายกำกับดูแลกิจการ\n- กำหนดมาตรฐานสากลด้านการกำกับดูแลกิจการและจัดทำข้อเสนอแนะที่สอดคล้องกับตราสารกฎหมาย\n- เพิ่มขีดความสามารถของผู้มีส่วนเกี่ยวข้องในการบังคับใช้ข้อกำหนดและนโยบาย\n- กำกับดูแลนโยบายกิจการรัฐวิสาหกิจให้มีความยั่งยืน โปร่งใส และมีธรรมาภิบาล",
+    legalInstruments:"OECD/LEGAL/0413 - Recommendation of the Council on Principles of Corporate Governance\nOECD/LEGAL/0414 - Recommendation of the Council on Guidelines on Corporate Governance of State-Owned Enterprises\nOECD/LEGAL/0451 - Recommendation of the Council on Guidelines on Anti-Corruption and Integrity in State-Owned Enterprises",
+    questionnaireStatus:'in_progress', questionnaireDate:"19/02/2026",
+    factFinding:"20/05/2026", accessionReview:"2027",
+    progress:"หน่วยงานรับผิดชอบหลักได้รับ Questionnaire แล้ว และอยู่ระหว่างการจัดทำข้อมูล\nคาดว่าจะเข้าสู่ขั้นตอนการประเมินครั้งแรกในช่วงไตรมาสที่ 4 ของปี 2569\nQuestionnaire มี 4 ส่วน:\n1. Self-Assessment of the OECD Principles of Corporate Governance\n2. SOE Guidelines Questionnaire\n3. Questionnaire ACI Guidelines\n4. SOE Review Data",
+    notes:"คณะกรรมการฯ ได้แจ้งรายชื่อผู้มีส่วนเกี่ยวข้องที่ไม่ใช่ภาครัฐ (Non-Governmental Stakeholders):\n1. สมาคมบริษัทจดทะเบียนไทย\n2. สมาคมส่งเสริมสถาบันกรรมการบริษัทไทย\n3. สมาคมบริษัทจัดการลงทุน\n4. สมาคมบริษัทหลักทรัพย์ไทย\n5. สมาคมตลาดตราสารหนี้ไทย" },
+
+  { id:1, type:'wp', committee:"Corporate Governance Committee (CGC)",
+    workingParty:"Working Party on State Ownership and Privatisation Practices (WP-SOE)",
+    agency:"สำนักงานคณะกรรมการนโยบายรัฐวิสาหกิจ กระทรวงการคลัง",
+    stakeholders:"สำนักงานคณะกรรมการป้องกันและปราบปรามการทุจริตแห่งชาติ",
+    objectives:"- ส่งเสริมความสัมพันธ์และการแลกเปลี่ยนข้อมูลระหว่างประเทศสมาชิกเพื่อยกระดับธรรมาภิบาลของกิจการรัฐวิสาหกิจ\n- กำกับดูแลนโยบายกิจการรัฐวิสาหกิจให้มีความยั่งยืน โปร่งใส\n- สนับสนุนการปฏิบัติตามตราสารกฎหมายที่เกี่ยวข้อง\n- ให้บริการด้านวิชาการและคำปรึกษาแก่ประเทศสมาชิก",
+    legalInstruments:"OECD/LEGAL/0451 - Recommendation of the Council on Guidelines on Anti-Corruption and Integrity in State-Owned Enterprises\nOECD/LEGAL/0414 - Recommendation of the Council on Guidelines on Corporate Governance of State-Owned Enterprises",
+    questionnaireStatus:'in_progress', questionnaireDate:"19/02/2026",
+    factFinding:"20/05/2026", accessionReview:"2027",
+    progress:"หน่วยงานรับผิดชอบหลักได้รับ Questionnaire แล้ว และอยู่ระหว่างการจัดทำข้อมูล\nคาดว่าจะเข้าสู่ขั้นตอนการประเมินครั้งแรกในช่วงไตรมาสที่ 4 ของปี 2569",
+    notes:"คณะทำงานฯ ดำเนินการประเมินทางเทคนิคพร้อมกับคณะกรรมการ และใช้ Questionnaire ชุดเดียวกัน\nSOE = รัฐวิสาหกิจ, Privatisation = การโอนกิจการของรัฐเป็นของเอกชน" },
+
+  { id:2, type:'committee', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Committee on Financial Markets (CMF) — ระดับคณะกรรมการ",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"ธนาคารแห่งประเทศไทย\nสำนักงานประกันสังคม กระทรวงแรงงาน\nกองทุนบำเหน็จบำนาญข้าราชการ\nสำนักบริหารหนี้สาธารณะ กระทรวงการคลัง",
+    objectives:"- ส่งเสริมการกำกับดูแลระบบการเงินที่มั่นคง เปิดเผย และมีประสิทธิภาพ\n- ยกระดับความโปร่งใสของตลาดการเงิน\n- ส่งเสริมการมีส่วนร่วมของสถาบันการเงินในการพัฒนาเศรษฐกิจ\n- พัฒนานโยบายตลาดการเงินในยุคดิจิทัล",
+    legalInstruments:"OECD/LEGAL/0470 - Recommendation of the Council on Blockchain and Other Distributed Ledger Technologies\nOECD/LEGAL/0461 - Recommendation of the Council on Financial Literacy\nOECD/LEGAL/0453 - Recommendation of the Council on Consumer Protection in the field of Consumer Credit\nOECD/LEGAL/0394 - Recommendation of the Council on High-Level Principles on Financial Consumer Protection\nOECD/LEGAL/0377 - Recommendation of the Council on a Policy Framework for Effective and Efficient Financial Regulation",
+    questionnaireStatus:'none', questionnaireDate:"02/01/2028",
+    factFinding:"—", accessionReview:"14/03/2028",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงานและกรอบระยะเวลา\nการประชุม OECD Financial Markets Week ครั้งถัดไปจะจัดขึ้นระหว่างวันที่ 3–4 กันยายน 2569",
+    notes:"การประเมินคณะกรรมการจะเกิดขึ้นภายหลังคณะทำงานทั้งหมด\nคาดการณ์กรอบเวลาการประเมินในช่วงปี 2571" },
+
+  { id:3, type:'wp', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Working Party on Insurance and Pensions",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"สำนักงานประกันสังคม กระทรวงแรงงาน",
+    objectives:"- ส่งเสริมการกำกับดูแลตลาดกองทุนบำเหน็จบำนาญและการประกันภัย\n- กำกับดูแลด้านความเสี่ยงในการลงทุนและการจัดสรรสินทรัพย์\n- เพิ่มขีดความสามารถกองทุนบำเหน็จบำนาญรองรับสังคมสูงวัย",
+    legalInstruments:"OECD/LEGAL/0467 - Recommendation of the Council for the Good Design of Defined Contribution Pension Plans\nOECD/LEGAL/0436 - Recommendation of the Council on Building Financial Resilience to Disaster Risks\nOECD/LEGAL/0429 - Recommendation of the Council on Core Principles of Private Pension Regulation\nOECD/LEGAL/0335 - Recommendation of the Council on Guidelines on Insurer Governance\nOECD/LEGAL/0330 - Recommendation of the Council on Good Practices for Insurance Claim Management\nOECD/LEGAL/0214 - Recommendation of the Council concerning a Common Classification of the Classes of Insurance",
+    questionnaireStatus:'none', questionnaireDate:"18/12/2027",
+    factFinding:"23/07/2027", accessionReview:"02/01/2028",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงานและกรอบระยะเวลา",
+    notes:"" },
+
+  { id:4, type:'wp', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Working Party on Financial Consumer Protection, Education and Inclusion",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"กองทุนบำเหน็จบำนาญข้าราชการ",
+    objectives:"ส่งเสริมการกำกับดูแลระบบการเงินผ่านการคุ้มครองผู้บริโภค การสร้างความรับรู้ และการเข้าถึงความรู้ด้านการเงินอย่างครอบคลุม",
+    legalInstruments:"OECD/LEGAL/0461 - Recommendation of the Council on Financial Literacy\nOECD/LEGAL/0453 - Recommendation of the Council on Consumer Protection in the field of Consumer Credit\nOECD/LEGAL/0394 - Recommendation of the Council on High-Level Principles on Financial Consumer Protection\nOECD/LEGAL/0377 - Recommendation of the Council on a Policy Framework for Effective and Efficient Financial Regulation",
+    questionnaireStatus:'none', questionnaireDate:"28/09/2027",
+    factFinding:"19/05/2027", accessionReview:"02/01/2028",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงานและกรอบระยะเวลา",
+    notes:"" },
+
+  { id:5, type:'wp', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Working Party on Sustainable Finance (สศค.)",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"—",
+    objectives:"ส่งเสริมบทบาทของสถาบันการเงินและระบบการเงินในการเปลี่ยนผ่านสู่ความยั่งยืน",
+    legalInstruments:"—",
+    questionnaireStatus:'none', questionnaireDate:"18/12/2027",
+    factFinding:"23/07/2027", accessionReview:"02/01/2028",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงาน",
+    notes:"" },
+
+  { id:6, type:'wp', committee:"Committee on Financial Markets (CMF)",
+    workingParty:"Working Party on Sustainable Finance (สบน.)",
+    agency:"สำนักบริหารหนี้สาธารณะ กระทรวงการคลัง*",
+    stakeholders:"—",
+    objectives:"- เพิ่มขีดความสามารถภาครัฐในการบริหารจัดการหนี้สาธารณะ\n- แลกเปลี่ยนความรู้แนวปฏิบัติที่ดีด้านหนี้สาธารณะกับประเทศสมาชิก",
+    legalInstruments:"—",
+    questionnaireStatus:'none', questionnaireDate:"06/02/2027",
+    factFinding:"19/05/2027", accessionReview:"31/08/2027",
+    progress:"หน่วยงานรับผิดชอบหลักได้หารือกับผู้แทนคณะกรรมการฯ ถึงแนวทางการดำเนินงาน",
+    notes:"" },
+
+  { id:7, type:'committee', committee:"Trade Committee",
+    workingParty:"Trade Committee — ระดับคณะกรรมการ",
+    agency:"กรมเจรจาการค้าระหว่างประเทศ กระทรวงพาณิชย์*",
+    stakeholders:"กรมการค้าต่างประเทศ กระทรวงพาณิชย์\nกรมทรัพย์สินทางปัญญา กระทรวงพาณิชย์\nสำนักงานปลัดกระทรวงพาณิชย์\nสำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง\nกรมศุลกากร กระทรวงการคลัง\nกรมสรรพสามิต กระทรวงการคลัง\nกรมเจ้าท่า กระทรวงคมนาคม\nสำนักงานป้องกันและปราบปรามการฟอกเงิน\nการนิคมอุตสาหกรรมแห่งประเทศไทย",
+    objectives:"- สนับสนุนให้ประเทศสมาชิกได้รับผลประโยชน์จากโอกาสทางการค้าตามมาตรฐานสากล\n- ส่งเสริมการหารือด้านนโยบายการค้า\n- พัฒนาโครงสร้างพื้นฐานการเปิดเสรีทางการค้า",
+    legalInstruments:"OECD/LEGAL/0187 - Declaration on Trade Policy\nOECD/LEGAL/0454 - Recommendation of the Council on Countering Illicit Trade: Enhancing Transparency in Free Trade Zones",
+    questionnaireStatus:'in_progress', questionnaireDate:"30/10/2026",
+    factFinding:"10/03/2027", accessionReview:"15/07/2027",
+    progress:"เมื่อวันที่ 7 เมษายน 2569 หน่วยงานรับผิดชอบหลักและคณะกรรมการฯ ได้ประชุมหารือ (Coordination Call) เพื่อกำหนดแนวทางการประเมินทางเทคนิคร่วมกัน\nคณะกรรมการฯ ได้ส่ง Questionnaire ฉบับแรกในหัวข้อ Market Openness Review มาด้วยแล้ว",
+    notes:"" },
+
+  { id:8, type:'wp', committee:"Trade Committee",
+    workingParty:"Working Party on Export Credits and Credit Guarantees",
+    agency:"สำนักงานเศรษฐกิจการคลัง กระทรวงการคลัง*",
+    stakeholders:"ธนาคารเพื่อการส่งออกและนำเข้าแห่งประเทศไทย (EXIM Bank)",
+    objectives:"- ติดตามประเมินผลนโยบายสินเชื่อเพื่อการส่งออก\n- สร้างความเท่าเทียมด้านการแข่งขันทางการค้าระหว่างประเทศ\n- ส่งเสริมมาตรฐานการแลกเปลี่ยนข้อมูลตามแนวปฏิบัติ OECD",
+    legalInstruments:"OECD/LEGAL/0393 - Recommendation of the Council on Common Approaches for Officially Supported Export Credits\nOECD/LEGAL/0442 - Recommendation of the Council on Sustainable Lending Practices and Officially Supported Export Credits\nOECD/LEGAL/0447 - Recommendation of the Council on Bribery and Officially Supported Export Credits\nOECD/LEGAL/5005 - Arrangement on Officially Supported Export Credits",
+    questionnaireStatus:'in_progress', questionnaireDate:"29/12/2026",
+    factFinding:"02/05/2026", accessionReview:"06/02/2027",
+    progress:"เมื่อวันที่ 7 เมษายน 2569 หน่วยงานรับผิดชอบหลักและคณะกรรมการฯ ได้ประชุมหารือ (Coordination Call) เพื่อกำหนดแนวทางการประเมินทางเทคนิคร่วมกัน",
+    notes:"OECD/LEGAL/5005 เป็นแนวปฏิบัติในการประเมินตนเอง ไม่มีข้อผูกมัดทางกฎหมาย" }
+];
+
+/* ═══════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════ */
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+
+function parseDate(str) {
+  if (!str || str === '—' || str === '-') return null;
+  const s = str.trim();
+  // Year only → Dec 31
+  if (/^\d{4}$/.test(s)) return new Date(parseInt(s), 11, 31);
+  const p = s.split('/');
+  // DD/MM/YYYY
+  if (p.length === 3) return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+  // MM/YYYY → last day of that month
+  if (p.length === 2) {
+    const m = parseInt(p[0]), y = parseInt(p[1]);
+    return new Date(y, m, 0); // day 0 of next month = last day of m
+  }
+  return null;
+}
+
+function ds(str) {
+  const d = parseDate(str); if (!d) return 'na';
+  return d <= TODAY ? 'done' : 'pending';
+}
+
+// Questionnaire chip
+function qChip(item) {
+  const s = item.questionnaireStatus;
+  if (s === 'submitted')   return `<span class="chip chip-q-done"><span class="chip-lbl">Q</span>${t('qSubmittedLabel')}</span>`;
+  if (s === 'in_progress') return `<span class="chip chip-q-prog"><span class="chip-lbl">Q</span>${t('qInProgLabel')}</span>`;
+  return `<span class="chip chip-q-none"><span class="chip-lbl">Q</span>${t('qNoneLabel')}</span>`;
+}
+
+// FF / AR chip
+function dateChip(str, lbl) {
+  const s = ds(str);
+  const cls = s==='done'?'chip-done':s==='pending'?'chip-pending':'chip-na';
+  return `<span class="chip ${cls}"><span class="chip-lbl">${lbl}</span>${str}</span>`;
+}
+
+function statusTh(s) { return s==='done'?'ผ่านกำหนดแล้ว':s==='pending'?'ยังไม่ถึงกำหนด':'ไม่ระบุ'; }
+
+/* ═══════════════════════════════════════════════════════
+   TRANSLATIONS (i18n)
+═══════════════════════════════════════════════════════ */
+let lang = 'th'; // global language state
+
+const TRANS = {
+  th: {
+    subtitle:        'ระบบติดตามการขับเคลื่อนการเข้าเป็นสมาชิก OECD - ประเทศไทย',
+    progressOverview:'ภาพรวมความคืบหน้า <span style="font-weight:400;text-transform:none;letter-spacing:0">Progress Overview</span>',
+    progTitle:       'สถานะการจัดทำ Questionnaire',
+    ffTitleC:        'Fact-finding Mission · ระดับคณะกรรมการ',
+    ffTitleWP:       'Fact-finding Mission · ระดับคณะทำงาน',
+    ffCalTitle:      'ปฏิทิน Fact-finding Mission',
+    ffComplete:      'ผ่านแล้ว (Completed)',
+    ffToday:         'เดือนปัจจุบัน',
+    ffUpcoming:      'ยังไม่ถึง (Upcoming)',
+    ffNoDate:        'ไม่ระบุ (N/A)',
+    qTitleC:         'Questionnaire · ระดับคณะกรรมการ',
+    qTitleWP:        'Questionnaire · ระดับคณะทำงาน',
+    submitted:       'ส่งแล้ว (Submitted)',
+    inProgress:      'กำลังจัดทำ (In Progress)',
+    notReceived:     'ยังไม่ได้รับ (Not Received)',
+    tlTitle:         'Fact-finding Mission & Accession Review — ตาราง 6 เดือนข้างหน้า',
+    qStatus:         'สถานะ Questionnaire:',
+    submittedShort:  'ส่งแล้ว',
+    inProgressShort: 'กำลังจัดทำ',
+    notReceivedShort:'ยังไม่ได้รับ',
+    ffArLabel:       'FF / AR:',
+    past:            'ผ่านกำหนดแล้ว',
+    upcoming:        'ยังไม่ถึงกำหนด',
+    searchPlaceholder:'ค้นหา คณะกรรมการ หน่วยงาน หรือคณะทำงาน...',
+    committeesWPs:   'คณะกรรมการและคณะทำงาน',
+    printOverall:    'Overall Fact Sheet',
+    printFactSheet:  'พิมพ์ Fact Sheet',
+    modalSubtitle:   'รายงานข้อมูลรายคณะทำงาน',
+    // summary cards
+    arCard:          'Accession Review',
+    notStarted:      'Not Started',
+    arCard:          'Accession Review',
+    notStarted:      'ยังไม่เริ่ม',
+    ffMissionCard:   'Fact-Finding Mission',
+    stepQ1:          'Q Received',
+    stepQ2:          'Q Complete',
+    stepFF:          'Fact-Finding',
+    stepAR:          'Accession Review',
+    overallProg:     'ความคืบหน้าในภาพรวม',
+    qInProgress:     'Questionnaire กำลังจัดทำ',
+    qSubmitted:      'Questionnaire ส่งแล้ว',
+    committees:      'คณะกรรมการ',
+    workingParties:  'คณะทำงาน',
+    // progress counts
+    submittedCount:  'ส่งแล้ว',
+    inProgCount:     'กำลังจัดทำ',
+    notRecvCount:    'ยังไม่ได้รับ',
+    // timeline
+    tlSubtitlePre:   'แสดงรายการที่มีกำหนดการระหว่าง',
+    today:           'วันนี้',
+    // filter
+    all:             'ทั้งหมด',
+    // card type tags
+    committeeTag:    'Committee',
+    wpTag:           'Working Party',
+    // gantt
+    ganttHeader:     'คณะกรรมการ / คณะทำงาน',
+    // modal labels
+    mAgency:         'หน่วยงานรับผิดชอบหลัก',
+    mRAContact:      'ผู้ประสานหน่วยงานหลัก (RA Contact Point)',
+    mNESDC:          'ผู้ประสานหลัก สศช. (NESDC Contact Point)',
+    mInternal:       'กลไกการขับเคลื่อนภายใน (Internal Committee/Task Force)',
+    mDirectorate:    'สำนักงานเลขาธิการ OECD (Directorate)',
+    mStakeholders:   'หน่วยงานที่เกี่ยวข้อง (Stakeholders)',
+    mTimeline:       'กรอบเวลาการประเมิน',
+    mObjectives:     'สาระสำคัญ (Objectives)',
+    mLegal:          'ตราสารกฎหมาย (Legal Instruments)',
+    mProgress:       'การดำเนินการในปัจจุบัน (Current Progress)',
+    mNotes:          'หมายเหตุ (Notes)',
+    // timeline chip status
+    done:            '✓ ผ่านกำหนดแล้ว',
+    pending:         '⏳ ยังไม่ถึงกำหนด',
+    na:              '— ไม่ระบุ',
+    qSubmittedLabel: 'ส่งแล้ว',
+    qInProgLabel:    'กำลังจัดทำ',
+    qNoneLabel:      'ยังไม่ได้รับ',
+  },
+  en: {
+    subtitle:        'Thailand OECD Accession Monitoring Dashboard',
+    progressOverview:'Progress Overview',
+    progTitle:       'Questionnaire Status',
+    ffTitleC:        'Fact-finding Mission · Committee Level',
+    ffTitleWP:       'Fact-finding Mission · Working Party Level',
+    ffCalTitle:      'Fact-finding Mission Calendar',
+    ffComplete:      'Completed',
+    ffToday:         'Current Month',
+    ffUpcoming:      'Upcoming',
+    ffNoDate:        'N/A',
+    qTitleC:         'Questionnaire · Committee Level',
+    qTitleWP:        'Questionnaire · Working Party Level',
+    submitted:       'Submitted',
+    inProgress:      'In Progress',
+    notReceived:     'Not Yet Received',
+    tlTitle:         'Fact-finding Mission & Accession Review — 6-Month Outlook',
+    qStatus:         'Questionnaire Status:',
+    submittedShort:  'Submitted',
+    inProgressShort: 'In Progress',
+    notReceivedShort:'Not Received',
+    ffArLabel:       'FF / AR:',
+    past:            'Completed',
+    upcoming:        'Upcoming',
+    searchPlaceholder:'Search committee, agency or working party...',
+    committeesWPs:   'Committees & Working Parties',
+    printOverall:    'Overall Fact Sheet',
+    printFactSheet:  'Print Fact Sheet',
+    modalSubtitle:   'Individual Committee/Working Party Report',
+    qInProgress:     'Questionnaire In Progress',
+    qSubmitted:      'Questionnaire Submitted',
+    arCard:          'Accession Review',
+    notStarted:      'Not Started',
+    ffMissionCard:   'Fact-Finding Mission',
+    stepQ1:          'Q Received',
+    stepQ2:          'Q Complete',
+    stepFF:          'Fact-Finding',
+    stepAR:          'Accession Review',
+    overallProg:     'Overall Progression',
+    committees:      'Committees',
+    workingParties:  'Working Parties',
+    submittedCount:  'Submitted',
+    inProgCount:     'In Progress',
+    notRecvCount:    'Not Received',
+    tlSubtitlePre:   'Showing scheduled items between',
+    today:           'Today',
+    all:             'All',
+    committeeTag:    'Committee',
+    wpTag:           'Working Party',
+    ganttHeader:     'Committee / Working Party',
+    mAgency:         'Responsible Agency',
+    mRAContact:      'RA Contact Point',
+    mNESDC:          'NESDC Contact Point',
+    mInternal:       'Internal Committee / Task Force',
+    mDirectorate:    'OECD Secretariat Directorate',
+    mStakeholders:   'Stakeholders',
+    mTimeline:       'Assessment Timeline',
+    mObjectives:     'Objectives',
+    mLegal:          'Legal Instruments',
+    mProgress:       'Current Progress',
+    mNotes:          'Notes',
+    done:            '✓ Completed / Past',
+    pending:         '⏳ Upcoming',
+    na:              '— N/A',
+    qSubmittedLabel: 'Submitted',
+    qInProgLabel:    'In Progress',
+    qNoneLabel:      'Not Received',
+  }
+};
+
+function t(key) { return TRANS[lang][key] || TRANS['th'][key] || key; }
+
+// AD year: JS Date.getFullYear() in th-TH locale returns BE; subtract 543
+function adYear(d) { return d.getFullYear(); } // getFullYear() is always AD in JS
+
+// Locale-aware short month label
+function monthLabel(d) {
+  if (lang === 'en') return d.toLocaleDateString('en-US', {month:'short'});
+  return d.toLocaleDateString('th-TH', {month:'short'});
+}
+
+// Locale-aware date string for header
+function localeDateStr(d) {
+  if (lang === 'en') return d.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+  // Thai display but with AD year
+  const thMonth = d.toLocaleDateString('th-TH', {month:'long'});
+  return `${d.getDate()} ${thMonth} ${d.getFullYear()}`;
+}
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnTH').classList.toggle('active', l === 'th');
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+
+  // Update all static data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.innerHTML = t(key);
+  });
+
+  // Update placeholder on search input
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+
+  // Update header date
+  document.getElementById('currentDate').textContent = localeDateStr(new Date());
+  // Re-render all dynamic sections
+  renderAll();
+}
+
+/* ═══════════════════════════════════════════════════════
+   AUTO-TRANSLATION CACHE (Option 3 — Claude API)
+═══════════════════════════════════════════════════════ */
+const txCache = {}; // key: `${id}_${field}` → translated string
+
+async function translateText(id, field, thaiText) {
+  const key = `${id}_${field}`;
+  if (txCache[key]) return txCache[key];
+  if (!thaiText || thaiText === '—') return thaiText;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `Translate the following Thai government text to English. Preserve formatting (line breaks, numbering). Return ONLY the translation, no explanation.
+
+${thaiText}`
+        }]
+      })
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+    const data = await res.json();
+    const translated = data.content?.map(b => b.text || '').join('').trim();
+    if (translated) { txCache[key] = translated; return translated; }
+  } catch (e) {
+    console.warn('Translation failed:', e.message);
+  }
+  return thaiText; // fallback to Thai on error
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let currentView = 'grid';
+let activeFilter = 'all';
+let currentItem = null;
+
+// rawData starts as the hardcoded set; replaced by CSV when loaded
+let liveData = rawData;
+
+/* ═══════════════════════════════════════════════════════
+   CSV → DATA PIPELINE
+═══════════════════════════════════════════════════════ */
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQzO5SxtTXOfpJAZOGTB2-5YH0WipqH22OnoDDtjHr5exGkwxvXWcpxk1-yWApspYjvYbMgtdF9qLZl/pub?gid=0&single=true&output=csv';
+
+// Robust CSV parser (handles quoted fields with commas/newlines)
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"' && text[i+1] === '"') { field += '"'; i++; }
+      else if (c === '"') inQ = false;
+      else field += c;
+    } else {
+      if (c === '"')  { inQ = true; }
+      else if (c === ',') { row.push(field.trim()); field = ''; }
+      else if (c === '\n') { row.push(field.trim()); if (row.some(f=>f)) rows.push(row); row = []; field = ''; }
+      else if (c !== '\r') field += c;
+    }
+  }
+  if (field || row.length) { row.push(field.trim()); if (row.some(f=>f)) rows.push(row); }
+  return rows;
+}
+
+// Normalise a date cell: handles Excel serial, DD/MM/YYYY, MM/YYYY, YYYY
+function normDate(s) {
+  if (!s || s === '' || s === '-') return '—';
+  s = s.trim();
+  if (s === '—') return '—';
+  // Year only (e.g. "2027")
+  if (/^\d{4}$/.test(s)) return s;
+  // Excel serial number (5 digits)
+  if (/^\d{5}(\.\d+)?$/.test(s)) {
+    const n = parseFloat(s);
+    const d = new Date(Math.round((n - 25569) * 86400000));
+    if (isNaN(d)) return s;
+    const dd = String(d.getUTCDate()).padStart(2,'0');
+    const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+    return `${dd}/${mm}/${d.getUTCFullYear()}`;
+  }
+  // DD/MM/YYYY full date
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  // MM/YYYY month-year only (e.g. "04/2027")
+  if (/^\d{1,2}\/\d{4}$/.test(s)) {
+    const [m, y] = s.split('/');
+    return `${String(m).padStart(2,'0')}/${y}`;
+  }
+  return s;
+}
+
+// Find column index by partial Thai/English header match
+function colIdx(headers, ...keywords) {
+  return headers.findIndex(h => keywords.some(k => h.toLowerCase().includes(k.toLowerCase())));
+}
+
+// Derive questionnaireStatus from the explicit status column value
+// Accepted values (case-insensitive): "Completed" | "In progress" | blank
+function deriveQStatus(dateStr, statusCol) {
+  const v = (statusCol || '').trim().toLowerCase();
+  if (v === 'completed' || v === 'complete' || v.includes('ส่งแล้ว') || v.includes('submit')) return 'submitted';
+  if (v === 'in progress' || v === 'in_progress' || v.includes('กำลัง') || v.includes('progress')) return 'in_progress';
+  // Blank status → not received yet, even if there is a date
+  return 'none';
+}
+
+// Convert parsed CSV rows → dashboard data array
+// EXACT positional column layout (updated — Directorate at col 4):
+//   0  ระดับ (Level)                               → type
+//   1  คณะกรรมการ (Committee Group)                → committee group
+//   2  คณะกรรมการ/คณะทำงาน (Entity Name)          → workingParty
+//   3  หน่วยงานรับผิดชอบหลัก (Responsible Agency) → agency
+//   4  สำนักงานเลขาธิการ OECD (Directorates)      → directorate [fact sheet only]
+//   5  หน่วยงานที่เกี่ยวข้อง (Stakeholders)        → stakeholders
+//   6  สาระสำคัญ (Objectives)                      → objectives
+//   7  ตราสารกฎหมาย (Legal Instruments)            → legalInstruments
+//   8  Questionnaire Status                        → questionnaireStatus
+//   9  Questionnaire                               → questionnaireDate
+//  10  Fact-finding Mission                        → factFinding
+//  11  Accession Review                            → accessionReview
+//  12  การดำเนินการในปัจจุบัน (Current Progress)  → progress
+//  13  ส่วนของผู้บันทึกข้อมูล (Note-taking)        → notes
+function csvToData(rows) {
+  if (rows.length < 2) return null;
+
+  // All columns by fixed position — no keyword guessing
+  // Column indices — confirmed from CSV v2 (EN columns interleaved)
+  const iLevel       = 0;   // ระดับ (Level)
+  const iGroup       = 1;   // คณะกรรมการ (Committee Group)
+  const iName        = 2;   // คณะกรรมการ/คณะทำงาน
+  const iAgency      = 3;   // หน่วยงานรับผิดชอบหลัก
+  const iAgencyEN    = 4;   // Responsible Agency (EN)
+  const iInternal    = 5;   // กลไกการขับเคลื่อนภายใน (Internal Committee/Task Force)
+  const iDirectorate = 6;   // สำนักงานเลขาธิการ OECD (Directorates)
+  const iStake       = 7;   // หน่วยงานที่เกี่ยวข้อง
+  const iStakeEN     = 8;   // Stakeholders (EN)
+  const iObj         = 9;   // สาระสำคัญ
+  const iObjEN       = 10;  // Objectives (EN)
+  const iLegal       = 11;  // ตราสารกฎหมาย
+  const iQStatus     = 12;  // Questionnaire Status
+  const iQ           = 13;  // Questionnaire date
+  const iFF          = 14;  // Fact-finding Mission
+  const iAR          = 15;  // Accession Review
+  const iProg        = 16;  // การดำเนินการในปัจจุบัน
+  const iNotes       = 17;  // ส่วนของผู้บันทึกข้อมูล
+  const iRAContact   = 18;  // ผู้ประสานหน่วยงานหลัก (RA Contact Point)
+  const iNESDC       = 19;  // ผู้ประสานหลัก สศช. (NESDC Contact Point)
+
+  const data = [];
+  let lastGroup = '';
+
+  rows.slice(1).forEach((row, idx) => {
+    const get = (i) => (i < row.length ? (row[i] || '').trim() : '');
+
+    // Col C — entity name; skip blank rows
+    const entityName = get(iName);
+    if (!entityName) return;
+
+    // Col A — ระดับ: "คณะกรรมการ" → committee, "คณะทำงาน" → wp
+    const levelRaw = get(iLevel).trim();
+    const type = (levelRaw === 'คณะกรรมการ' || levelRaw.toLowerCase().startsWith('committee'))
+      ? 'committee' : 'wp';
+
+    // Col B — committee group; forward-fill merged/blank cells
+    const groupRaw = get(iGroup);
+    if (groupRaw) lastGroup = groupRaw;
+    const committee = lastGroup || entityName;
+
+    // Questionnaire status from dedicated column (Col H)
+    const qStatus = deriveQStatus(get(iQ), get(iQStatus));
+
+    data.push({
+      id:                  idx,
+      type,
+      committee,
+      workingParty:        entityName,
+      agency:              get(iAgency)      || '—',
+      agencyEN:            get(iAgencyEN)    || '',
+      internalMech:        get(iInternal)    || '',
+      directorate:         get(iDirectorate) || '',
+      raContact:           get(iRAContact)   || '',
+      nesdcContact:        get(iNESDC)       || '',
+      stakeholders:        get(iStake)       || '—',
+      stakeholdersEN:      get(iStakeEN)     || '',
+      objectives:          get(iObj),
+      objectivesEN:        get(iObjEN)       || '',
+      legalInstruments:    get(iLegal)       || '—',
+      questionnaireStatus: qStatus,
+      questionnaireDate:   normDate(get(iQ)),
+      factFinding:         normDate(get(iFF)),
+      accessionReview:     normDate(get(iAR)),
+      progress:            get(iProg),
+      notes:               get(iNotes),
+    });
+  });
+
+  return data.length ? data : null;
+}
+
+async function loadFromSheets() {
+  const overlay = document.getElementById('loadingOverlay');
+  const msg     = document.getElementById('loadingMsg');
+  try {
+    msg.textContent = 'เชื่อมต่อ Google Sheets…';
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    msg.textContent = 'วิเคราะห์ข้อมูล…';
+    const text = await res.text();
+    const rows = parseCSV(text);
+    const parsed = csvToData(rows);
+    if (parsed) {
+      liveData = parsed;
+      msg.textContent = `โหลดสำเร็จ — ${parsed.length} รายการ`;
+    } else {
+      throw new Error('ไม่สามารถแปลงข้อมูลได้');
+    }
+  } catch (err) {
+    console.warn('CSV fetch failed, using fallback data:', err);
+    liveData = rawData;
+    msg.textContent = 'ใช้ข้อมูลสำรอง (offline mode)';
+  } finally {
+    setTimeout(() => { overlay.style.display = 'none'; }, 400);
+    renderAll();
+  }
+}
+
+function renderAll() {
+  renderSummary();
+  renderProgress();
+  renderFilterBtns();
+  applyFilters();
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('currentDate').textContent = localeDateStr(new Date());
+  loadFromSheets();
+});
+
+/* ═══════════════════════════════════════════════════════
+   SUMMARY
+═══════════════════════════════════════════════════════ */
+function renderSummary() {
+  const committees = liveData.filter(d => d.type === 'committee');
+  const nC = committees.length;
+
+  // Committee-level counts
+  const cProg = committees.filter(d => d.questionnaireStatus === 'in_progress').length;
+  const cDone = committees.filter(d => d.questionnaireStatus === 'submitted').length;
+  const cFF   = committees.filter(d => { const dt = parseDate(d.factFinding);    return dt && dt <= TODAY; }).length;
+  const cAR   = committees.filter(d => { const dt = parseDate(d.accessionReview); return dt && dt <= TODAY; }).length;
+
+  // Overall Progression %
+  const overallPct = Math.min(100, ((cProg * 0.5 + cDone + cFF + cAR) * 4 / 3)).toFixed(1);
+
+  // ── Donut chart: committee by highest achieved step ──────────────────
+  // Categorise each committee by highest step (4=AR, 3=FF, 2=QS, 1=QP, 0=none)
+  const cats = [0,0,0,0,0]; // [none, qProg, qSubmit, ff, ar]
+  committees.forEach(d => {
+    const s = stepsFor(d);
+    cats[Math.min(s, 4)]++;
+  });
+  // [0]=not started, [1]=Q In Progress, [2]=Q Submitted, [3]=FF, [4]=AR
+  const slices = [
+    { label: t('qInProgress'),   count: cats[1], color: '#f59e0b' },
+    { label: t('qSubmitted'),    count: cats[2], color: '#16a34a' },
+    { label: t('ffMissionCard'), count: cats[3], color: '#1a3a6b' },
+    { label: t('arCard'),        count: cats[4], color: '#dc2626' },
+    { label: t('notStarted'),    count: cats[0], color: '#9ca3af' },
+  ];
+
+  // SVG donut (r=70, stroke=26, cx=cy=80, viewBox 160x160)
+  const CX=110, CY=110, R=78, SW=30;
+  const total = nC || 1;
+  let angle = -90; // start top
+  let paths = '';
+  const GAP = nC > 1 ? 2 : 0; // gap degrees between slices
+
+  function polarPt(deg) {
+    const r = deg * Math.PI / 180;
+    return [CX + R * Math.cos(r), CY + R * Math.sin(r)];
+  }
+
+  slices.forEach(s => {
+    if (!s.count) return;
+    const sweep = (s.count / total) * 360 - GAP;
+    const [x1,y1] = polarPt(angle + GAP/2);
+    const endA = angle + GAP/2 + sweep;
+    const [x2,y2] = polarPt(endA);
+    const large = sweep > 180 ? 1 : 0;
+    paths += `<path d="M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${R} ${R} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}"
+      fill="none" stroke="${s.color}" stroke-width="${SW}" stroke-linecap="butt"/>`;
+    angle += (s.count / total) * 360;
+  });
+
+  const donutSVG = `<svg viewBox="0 0 ${CX*2} ${CY*2}" width="200" height="200" style="flex-shrink:0">
+    <circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="#f0f4f8" stroke-width="${SW}"/>
+    ${paths}
+    <text x="${CX}" y="${CY-8}" text-anchor="middle" font-size="30" font-weight="800" fill="#1a3a6b" font-family="Sarabun,sans-serif">${nC}</text>
+    <text x="${CX}" y="${CY+16}" text-anchor="middle" font-size="12" fill="#9ca3af" font-family="Sarabun,sans-serif">${t('committees')}</text>
+  </svg>`;
+
+  const legendHtml = slices.map(s => `
+    <div class="sdl-item">
+      <div class="sdl-dot" style="background:${s.color}"></div>
+      <div class="sdl-lbl">${s.label} (${s.count})</div>
+    </div>`).join('');
+
+  // ── 4 metric cards ────────────────────────────────────────────────────
+  function metricCard(color, lbl, val, denom) {
+    const pct = (val / denom * 100).toFixed(0);
+    return `<div class="sum-card-new" style="border-top-color:${color}">
+      <div class="scn-lbl">${lbl}</div>
+      <div class="scn-val-row">
+        <div class="scn-num" style="color:${color}">${val}</div>
+        <div class="scn-denom">/ ${denom}</div>
+      </div>
+      <div class="scn-sub">${t('committees')}</div>
+      <div class="scn-bar-track">
+        <div class="scn-bar-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }
+
+  // ── 4 metric cards ────────────────────────────────────────────────────
+  document.getElementById('sumRow').innerHTML = `
+    <div class="sum-cards" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+      ${metricCard('#f59e0b', t('qInProgress'),  cProg, nC)}
+      ${metricCard('#16a34a', t('qSubmitted'),   cDone, nC)}
+      ${metricCard('#1a3a6b', t('ffMissionCard'),cFF,   nC)}
+      ${metricCard('#dc2626', t('arCard'),        cAR,  nC)}
+    </div>`;
+
+  // ── Donut + Q-bars side by side ───────────────────────────────────────
+  document.getElementById('sumDonut').innerHTML = `
+    <div class="sum-donut-row">
+
+      <!-- LEFT: donut + legend + gauge -->
+      <div class="sum-donut-wrap">
+        <div class="sum-donut-title">${t('progressOverview')}</div>
+        <div class="sum-donut-body">
+          ${donutSVG}
+          <div class="sum-donut-legend">
+            ${legendHtml}
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Q-status progress bars -->
+      <div class="sum-qbars-wrap">
+        <div class="prog-title" style="margin-bottom:14px" data-i18n="progTitle">${t('progTitle')}</div>
+        <div class="q-section">
+          <div class="q-header">
+            <div class="q-title" data-i18n="qTitleC">${t('qTitleC')}</div>
+            <div class="q-counts" id="qCountsC"></div>
+          </div>
+          <div class="seg-track" id="qBarC"></div>
+        </div>
+        <div class="q-section" style="margin-top:24px">
+          <div class="q-header">
+            <div class="q-title" data-i18n="qTitleWP">${t('qTitleWP')}</div>
+            <div class="q-counts" id="qCountsWP"></div>
+          </div>
+          <div class="seg-track" id="qBarWP"></div>
+          <div class="q-legend" style="margin-top:10px">
+            <div class="ql-item"><div class="ql-dot" style="background:var(--green)"></div> <span data-i18n="submitted">${t('submitted')}</span></div>
+            <div class="ql-item"><div class="ql-dot" style="background:#f59e0b"></div> <span data-i18n="inProgress">${t('inProgress')}</span></div>
+            <div class="ql-item"><div class="ql-dot" style="background:#cbd5e1"></div> <span data-i18n="notReceived">${t('notReceived')}</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PROGRESS PANEL
+═══════════════════════════════════════════════════════ */
+function renderProgress() {
+
+  // ── Questionnaire 3-state bars split by type ─────────────
+  function renderQBar(barId, countsId, items) {
+    const n    = items.length;
+    const sub  = items.filter(d=>d.questionnaireStatus==='submitted').length;
+    const prog = items.filter(d=>d.questionnaireStatus==='in_progress').length;
+    const none = items.filter(d=>d.questionnaireStatus==='none').length;
+    if (!n) return;
+    document.getElementById(barId).innerHTML = `
+      <div class="seg-fill seg-green" style="width:${(sub/n*100).toFixed(1)}%"></div>
+      <div class="seg-fill seg-amber" style="width:${(prog/n*100).toFixed(1)}%"></div>
+      <div class="seg-fill seg-gray"  style="width:${(none/n*100).toFixed(1)}%"></div>`;
+    document.getElementById(countsId).innerHTML = `
+      <div class="q-count-item"><div class="q-dot" style="background:var(--green)"></div> ${t('submittedCount')}: <strong>${sub}/${n}</strong></div>
+      <div class="q-count-item"><div class="q-dot" style="background:#f59e0b"></div> ${t('inProgCount')}: <strong>${prog}/${n}</strong></div>
+      <div class="q-count-item"><div class="q-dot" style="background:#cbd5e1"></div> ${t('notRecvCount')}: <strong>${none}/${n}</strong></div>`;
+  }
+
+  const committees = liveData.filter(d => d.type === 'committee');
+  const wps        = liveData.filter(d => d.type === 'wp');
+  renderQBar('qBarC',  'qCountsC',  committees);
+  renderQBar('qBarWP', 'qCountsWP', wps);
+
+  // ── Fact-finding Mission Calendar Grid ────────────────────────────────────
+  function renderFFCalendar() {
+    // 12 months starting from current month
+    const months = [];
+    for (let i = 0; i < 12; i++) {
+      const m = new Date(TODAY.getFullYear(), TODAY.getMonth() + i, 1);
+      months.push(m);
+    }
+
+    const todayKey = TODAY.getFullYear() * 100 + TODAY.getMonth();
+
+    // Group items by month key and type
+    function buildMap(items) {
+      const map = {};
+      items.forEach(item => {
+        const dt = parseDate(item.factFinding);
+        if (!dt) return;
+        const key = dt.getFullYear() * 100 + dt.getMonth();
+        if (!map[key]) map[key] = [];
+        map[key].push(item);
+      });
+      return map;
+    }
+
+    const cItems  = liveData.filter(d => d.type === 'committee');
+    const wpItems = liveData.filter(d => d.type === 'wp');
+    const cMap    = buildMap(cItems);
+    const wpMap   = buildMap(wpItems);
+
+    // Summary counters — computed directly from full data, not just the 12-month window
+    const cDone  = cItems.filter(d => { const dt = parseDate(d.factFinding); return dt && dt <= TODAY; }).length;
+    const wpDone = wpItems.filter(d => { const dt = parseDate(d.factFinding); return dt && dt <= TODAY; }).length;
+    const cUp    = cItems.filter(d => { const dt = parseDate(d.factFinding); return dt && dt > TODAY; }).length;
+    const wpUp   = wpItems.filter(d => { const dt = parseDate(d.factFinding); return dt && dt > TODAY; }).length;
+
+    // Build month cards — each card shows month header + mission list for both levels
+    const cards = months.map(m => {
+      const key     = m.getFullYear() * 100 + m.getMonth();
+      const isNow   = key === todayKey;
+      const isPast  = key < todayKey;
+      const cMiss   = cMap[key]  || [];
+      const wpMiss  = wpMap[key] || [];
+      const hasMiss = cMiss.length > 0 || wpMiss.length > 0;
+
+      // Determine card state — past if ALL missions in the month are past today
+      let cardState = '';
+      if (hasMiss) {
+        const allPast = [...cMiss, ...wpMiss].every(d => {
+          const dt = parseDate(d.factFinding); return dt && dt <= TODAY;
+        });
+        cardState = allPast ? 'ff-card-past' : 'ff-card-upcoming';
+      }
+
+      const mFull = lang === 'en'
+        ? m.toLocaleDateString('en-US', { month: 'long' })
+        : m.toLocaleDateString('th-TH', { month: 'long' });
+      const yr = m.getFullYear();
+
+      // Build mission list lines
+      function missionLines(missions) {
+        if (!missions.length) return '';
+        return missions.map(item => {
+          const name = item.workingParty
+            .replace(/\s*[–—-]\s*ระดับคณะกรรมการ/g, '').trim();
+          const dt   = parseDate(item.factFinding);
+          const done = dt && dt <= TODAY;
+          return `<div class="ff-mission-line${done ? ' ff-ml-done' : ' ff-ml-up'}"
+                       onclick="openModal(${item.id})"
+                       title="${item.factFinding}">
+            <span class="ff-ml-dot"></span>${name}
+          </div>`;
+        }).join('');
+      }
+
+      const cLines  = missionLines(cMiss);
+      const wpLines = missionLines(wpMiss);
+
+      const bodyHtml = (cLines || wpLines)
+        ? `<div class="ff-card-body">
+            ${cLines  ? `<div class="ff-card-section"><div class="ff-card-type">${t('committees')}</div>${cLines}</div>`  : ''}
+            ${wpLines ? `<div class="ff-card-section"><div class="ff-card-type">${t('workingParties')}</div>${wpLines}</div>` : ''}
+           </div>`
+        : `<div class="ff-card-empty">—</div>`;
+
+      return `<div class="ff-month-card ${cardState}${isNow ? ' ff-card-now' : ''}">
+        <div class="ff-card-header">
+          <span class="ff-card-month">${mFull}</span>
+          <span class="ff-card-year">${yr}</span>
+        </div>
+        ${bodyHtml}
+      </div>`;
+    }).join('');
+
+    document.getElementById('ffCalGrid').innerHTML =
+      `<div class="ff-cards-grid">${cards}</div>`;
+
+    document.getElementById('ffCalCounts').innerHTML = `
+      <div class="ff-count-item">
+        <div class="ff-leg-dot ff-past"></div>
+        <span class="ff-count-lbl">${t('ffComplete')}:</span>
+        <strong>${cDone}/${cItems.length}</strong> ${t('committees')} &nbsp;|&nbsp;
+        <strong>${wpDone}/${wpItems.length}</strong> ${t('workingParties')}
+      </div>
+      <div class="ff-count-item">
+        <div class="ff-leg-dot ff-upcoming"></div>
+        <span class="ff-count-lbl">${t('ffUpcoming')}:</span>
+        <strong>${cUp}/${cItems.length}</strong> ${t('committees')} &nbsp;|&nbsp;
+        <strong>${wpUp}/${wpItems.length}</strong> ${t('workingParties')}
+      </div>`;
+  }
+
+  renderFFCalendar();
+}
+/* ═══════════════════════════════════════════════════════
+   FILTER BUTTONS
+═══════════════════════════════════════════════════════ */
+function renderFilterBtns() {
+  const cs = ['all', ...new Set(liveData.map(d=>d.committee))];
+  document.getElementById('filterBtns').innerHTML = cs.map(c =>
+    `<button class="filter-btn ${c==='all'?'active':''}" onclick="setFilter('${c.replace(/'/g,"\\'")}',this)">${c==='all'?t('all'):c}</button>`
+  ).join('');
+}
+
+function setFilter(val, btn) {
+  activeFilter = val;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = liveData.filter(item => {
+    const mf = activeFilter==='all' || item.committee===activeFilter;
+    const ms = !q || [item.committee,item.workingParty,item.agency,item.stakeholders,item.progress].some(s=>s.toLowerCase().includes(q));
+    return mf && ms;
+  });
+  document.getElementById('visCount').textContent = filtered.length;
+  if (currentView === 'grid') renderGrouped(filtered);
+  else if (currentView === 'timeline') renderTimeline(filtered);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   PROGRESS PIPELINE HELPERS (shared by cards + print)
+═══════════════════════════════════════════════════════ */
+function stepsFor(item) {
+  let s = 0;
+  if (item.questionnaireStatus === 'in_progress' || item.questionnaireStatus === 'submitted') s++;
+  if (item.questionnaireStatus === 'submitted') s++;
+  const ffDt = parseDate(item.factFinding);  if (ffDt && ffDt <= TODAY) s++;
+  const arDt = parseDate(item.accessionReview); if (arDt && arDt <= TODAY) s++;
+  return s;
+}
+
+function cardPalette(steps) {
+  if (steps >= 3) return { border:'#16a34a', bar:'#16a34a', badge:'#16a34a', fill:'#f0fdf4', conn:'#86efac' };
+  if (steps >= 1) return { border:'#d97706', bar:'#d97706', badge:'#d97706', fill:'#fffbeb', conn:'#fcd34d' };
+  return              { border:'#dc2626', bar:'#dc2626', badge:'#dc2626', fill:'#fef2f2', conn:'#fca5a5' };
+}
+
+function stepPipelineHTML(item, steps, pal) {
+  const LABELS = [t('stepQ1')||'Q Received', t('stepQ2')||'Q Complete', t('stepFF')||'Fact-Finding', t('stepAR')||'Accession Review'];
+  return LABELS.map((lbl, i) => {
+    const done   = i < steps;
+    const cirBg  = done ? pal.badge  : '#e5e7eb';
+    const cirBd  = done ? pal.badge  : '#d1d5db';
+    const icon   = done ? '✓' : String(i+1);
+    const conn   = i < LABELS.length - 1
+      ? `<div class="pc-connector" style="background:${i < steps - 1 ? pal.conn : '#e5e7eb'}"></div>` : '';
+    return `<div class="pc-step">
+      <div class="pc-step-circle" style="background:${cirBg};border-color:${cirBd};color:${done?'white':'#9ca3af'}">
+        ${icon}
+      </div>
+      <div class="pc-step-lbl${done?' done':''}">${lbl}</div>
+    </div>${conn}`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   CARD VIEW
+═══════════════════════════════════════════════════════ */
+function renderGrouped(data) {
+  const el = document.getElementById('mainContent');
+  const isEN = lang === 'en';
+  if (!data.length) {
+    el.innerHTML = `<div class="empty-state">${isEN ? 'No matching results' : 'ไม่พบข้อมูลที่ตรงกับการค้นหา'}</div>`;
+    return;
+  }
+
+  function makeProgCard(item, typeLabel, extraClass) {
+    const agency  = (isEN && item.agencyEN ? item.agencyEN : item.agency).split('\n')[0].replace(/\*$/,'').trim();
+    const name    = item.workingParty.replace(/\s*[–—-]\s*ระดับคณะกรรมการ/g,'').trim();
+    const steps   = stepsFor(item);
+    const pal     = cardPalette(steps);
+    const pipeline= stepPipelineHTML(item, steps, pal);
+    return `
+      <div id="card-${item.id}" class="prog-card${extraClass?' '+extraClass:''}" style="border-color:${pal.border}"
+           onclick="toggleCard(${item.id},event)">
+        <div class="pc-bar" style="background:${pal.bar}"></div>
+        <div class="pc-body" style="background:${pal.fill}">
+          <div class="pc-head">
+            <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0">
+              <div class="pc-badge" style="background:${pal.badge}">${steps}</div>
+              <div class="pc-names">
+                <div class="pc-type">${typeLabel}</div>
+                <div class="pc-name">${name}</div>
+              </div>
+            </div>
+            <span class="pc-chevron">▼</span>
+          </div>
+          <div class="pc-agency">🏢 ${agency}</div>
+          <div class="pc-pipeline">${pipeline}</div>
+        </div>
+        <div id="expand-${item.id}" class="${extraClass?'committee-expand':'card-expand'}"></div>
+      </div>`;
+  }
+
+  el.innerHTML = [...new Set(data.map(d=>d.committee))].map(committee => {
+    const cItem = data.find(d=>d.committee===committee && d.type==='committee');
+    const wps   = data.filter(d=>d.committee===committee && d.type==='wp');
+
+    let html = `<div class="committee-group">`;
+
+    // Committee label row
+    html += `<div class="cg-label">${committee}</div>`;
+
+    // Committee-level card (full width)
+    if (cItem) {
+      html += `<div style="margin-bottom:10px">${makeProgCard(cItem, t('committeeTag'), 'committee-prog')}</div>`;
+    }
+
+    // Working Party grid
+    if (wps.length) {
+      html += `<div class="wp-prog-grid">` +
+        wps.map((item,i) => makeProgCard(item, t('wpTag'), '')).join('') +
+        `</div>`;
+    }
+
+    return html + `</div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   GANTT TIMELINE VIEW
+═══════════════════════════════════════════════════════ */
+function renderTimeline(data) {
+  const el = document.getElementById('timelineContent');
+  if (!data.length) {
+    el.innerHTML = '<div class="gantt-empty">ไม่พบข้อมูลที่ตรงกับการค้นหา</div>';
+    return;
+  }
+
+  // ── compute date range across all items ──────────────────
+  const allDates = [];
+  data.forEach(d => {
+    [d.questionnaireDate, d.factFinding, d.accessionReview].forEach(s => {
+      const dt = parseDate(s); if (dt) allDates.push(dt);
+    });
+  });
+  allDates.push(TODAY);
+
+  let minD = new Date(Math.min(...allDates));
+  let maxD = new Date(Math.max(...allDates));
+
+  // clamp to month boundaries and pad 1 month each side
+  minD = new Date(minD.getFullYear(), minD.getMonth() - 1, 1);
+  maxD = new Date(maxD.getFullYear(), maxD.getMonth() + 2, 0);
+
+  const totalDays = (maxD - minD) / 86400000;
+
+  // Build list of months
+  const months = [];
+  let cur = new Date(minD.getFullYear(), minD.getMonth(), 1);
+  while (cur <= maxD) {
+    months.push(new Date(cur));
+    cur.setMonth(cur.getMonth() + 1);
+  }
+
+  const nMonths = months.length;
+  const COL_W = Math.max(48, Math.floor(1200 / nMonths)); // px per month, min 48
+
+  function pct(d) {
+    if (!d) return null;
+    const days = (d - minD) / 86400000;
+    return (days / totalDays * 100).toFixed(3) + '%';
+  }
+
+  // ── month header: month labels only, year shown via separators ────────
+  // Collect year change positions first
+  const yearChanges = {}; // year → first-month index
+  months.forEach((m, i) => {
+    const y = m.getFullYear();
+    if (!(y in yearChanges)) yearChanges[y] = i;
+  });
+
+  const monthCells = months.map((m, i) => {
+    const isCur = m.getMonth() === TODAY.getMonth() && m.getFullYear() === TODAY.getFullYear();
+    const lbl = monthLabel(m);
+    // Show year label inside cell only at year boundaries (first month of that year)
+    const isYearStart = Object.values(yearChanges).includes(i);
+    const yr = m.getFullYear();
+    return `<div class="gantt-month${isCur ? ' cur' : ''}${isYearStart ? ' year-start' : ''}" style="min-width:${COL_W}px;max-width:${COL_W}px"
+      data-year="${yr}">
+      <span class="gm-month-lbl">${lbl}</span>
+    </div>`;
+  }).join('');
+
+  // ── today line ────────────────────────────────────────────
+  const todayPct = pct(TODAY);
+
+  // ── year boundary lines inside chart rows ─────────────────
+  // Positioned at exact Jan 1 of each year (except first)
+  const years = Object.keys(yearChanges).map(Number).sort((a,b)=>a-b);
+  const yearSeps = years.map(y => {
+    const jan1 = new Date(y, 0, 1);
+    if (jan1 <= minD) return ''; // skip if before range start
+    const p = pct(jan1);
+    return `<div class="gantt-year-sep" style="left:${p}">
+              <div class="gantt-year-lbl-row">${y}</div>
+            </div>`;
+  }).join('');
+
+  // ── year ruler above months (single row showing year spans) ──────────
+  // Build year spans for the header
+  const yearSpanCells = years.map((y, i) => {
+    const startIdx = yearChanges[y];
+    const endIdx = (i < years.length - 1) ? yearChanges[years[i+1]] : months.length;
+    const spanW = (endIdx - startIdx) * COL_W;
+    const isFirst = startIdx === 0;
+    return `<div class="gantt-year-cell${isFirst ? '' : ' year-border'}" style="min-width:${spanW}px;max-width:${spanW}px">${y}</div>`;
+  }).join('');
+
+  // ═══════════════════════════════════════════════════════
+  // BUILD TWO-PANEL OUTPUT
+  // Left: fixed label column  |  Right: scrollable axis + chart
+  // ═══════════════════════════════════════════════════════
+
+  const axisW  = nMonths * COL_W;
+  const totalW = 280 + axisW;
+
+  // Build unified rows: label + chart in same element for automatic height sync
+  const committees = [...new Set(data.map(d => d.committee))];
+  let rowsHtml = '';
+
+  committees.forEach(committee => {
+    const cItem = data.find(d => d.committee === committee && d.type === 'committee');
+    const wps   = data.filter(d => d.committee === committee && d.type === 'wp');
+
+    // Group header row
+    rowsHtml += `
+      <div class="gantt-row group-row" style="min-width:${totalW}px">
+        <div class="gantt-lcell">
+          <div class="row-name"><span style="opacity:.5;margin-right:6px">▪</span>${committee}</div>
+        </div>
+        <div class="gantt-chart" style="min-width:${axisW}px;--col-w:${COL_W}px">
+          ${yearSeps}
+        </div>
+      </div>`;
+
+    const items = cItem ? [cItem, ...wps] : wps;
+    items.forEach(item => {
+      const isC = item.type === 'committee';
+
+      // Strip committee-level suffix from display name
+      const displayName = item.workingParty
+        .replace(/\s*[\u2013\u2014-]\s*ระดับคณะกรรมการ/g, '')
+        .replace(/\s*—\s*ระดับคณะกรรมการ/g, '')
+        .trim();
+
+      const agencySrc  = (lang === 'en' && item.agencyEN) ? item.agencyEN : item.agency;
+      const agencyLine = agencySrc && agencySrc !== '—'
+        ? agencySrc.split('\n')[0].replace(/\*$/, '') : '';
+
+      const qDt   = parseDate(item.questionnaireDate);
+      const ffDt  = parseDate(item.factFinding);
+      const arDt  = parseDate(item.accessionReview);
+      const qMark  = qDt  ? `<div class="gm-block bq"  style="left:${pct(qDt)}"  title="Questionnaire: ${item.questionnaireDate}&#10;${displayName}">Q</div>`  : '';
+      const ffMark = ffDt ? `<div class="gm-block bff" style="left:${pct(ffDt)}" title="Fact-finding: ${item.factFinding}&#10;${displayName}">FF</div>` : '';
+      const arMark = arDt ? `<div class="gm-block bar" style="left:${pct(arDt)}" title="Accession Review: ${item.accessionReview}&#10;${displayName}">AR</div>` : '';
+
+      rowsHtml += `
+        <div class="gantt-row${isC ? ' committee-row' : ''}" style="min-width:${totalW}px"
+             onclick="openModal(${item.id})">
+          <div class="gantt-lcell">
+            <div class="row-type-tag">${isC ? t('committeeTag') : t('wpTag')}</div>
+            <div class="row-name">${displayName}</div>
+            ${agencyLine ? `<div class="row-agency">${agencyLine}</div>` : ''}
+          </div>
+          <div class="gantt-chart" style="min-width:${axisW}px;--col-w:${COL_W}px">
+            <div class="today-line" style="left:${todayPct}"></div>
+            ${yearSeps}
+            ${qMark}${ffMark}${arMark}
+          </div>
+        </div>`;
+    });
+  });
+
+  // Legend above the gantt
+  const legendHtml = `
+    <div class="tl-gantt-legend">
+      <div class="gli"><div class="gm-block bq"  style="position:static;transform:none;font-size:9px;height:16px">Q</div> Questionnaire</div>
+      <div class="gli"><div class="gm-block bff" style="position:static;transform:none;font-size:9px;height:16px">FF</div> Fact-finding Mission</div>
+      <div class="gli"><div class="gm-block bar" style="position:static;transform:none;font-size:9px;height:16px">AR</div> Accession Review</div>
+      <div class="gli" style="margin-left:auto;color:var(--textd);font-size:10px">
+        <div style="width:2px;height:14px;background:#22c55e;opacity:0.85;border-radius:1px;margin-right:5px"></div>
+        ${t('today')}
+      </div>
+    </div>`;
+
+  el.innerHTML = `
+    ${legendHtml}
+    <div class="gantt-outer">
+
+      <!-- Sticky header — clipped to visible width by overflow:hidden -->
+      <div class="gantt-header">
+        <div class="gantt-lhdr">${t('ganttHeader')}</div>
+        <div class="gantt-axis-wrap" id="ganttAxisWrap">
+          <div class="gantt-axis" style="min-width:${axisW}px">
+            <div class="gantt-year-ruler">${yearSpanCells}</div>
+            <div class="gantt-months">${monthCells}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll container: horizontal only -->
+      <div class="gantt-scroll" id="ganttScroll">
+        <div class="gantt-inner" style="min-width:${totalW}px">
+          ${rowsHtml}
+        </div>
+      </div>
+
+    </div>`;
+
+  // Sync header axis with chart scroll so months align with rows
+  (function() {
+    const scroll   = document.getElementById('ganttScroll');
+    const axisWrap = document.getElementById('ganttAxisWrap');
+    if (!scroll || !axisWrap) return;
+    const axis = axisWrap.firstElementChild;
+    scroll.addEventListener('scroll', () => {
+      axis.style.transform = 'translateX(-' + scroll.scrollLeft + 'px)';
+    }, { passive: true });
+  })();
+}
+
+/* ═══════════════════════════════════════════════════════
+   VIEW TOGGLE
+═══════════════════════════════════════════════════════ */
+function setView(v) {
+  currentView = v;
+  document.getElementById('mainContent').style.display    = v === 'grid'     ? 'block' : 'none';
+  document.getElementById('timelineWrap').style.display   = v === 'timeline' ? 'block' : 'none';
+  document.getElementById('btnGrid').classList.toggle('active',  v === 'grid');
+  document.getElementById('btnTable').classList.toggle('active', v === 'timeline');
+  applyFilters();
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════════ */
+async function openModal(id) {
+  currentItem = liveData.find(d=>d.id===id);
+  const item = currentItem;
+
+  const isEN = lang === 'en';
+
+  document.getElementById('mBadge').textContent =
+    item.type==='committee' ? item.committee+' · ระดับคณะกรรมการ' : item.committee+' · Working Party';
+  document.getElementById('mTitle').textContent = item.workingParty;
+
+  // Option 1: use pre-translated EN fields for agency/stakeholders/objectives
+  const agencyTxt    = (isEN && item.agencyEN)       ? item.agencyEN       : item.agency;
+  const stakeTxt     = (isEN && item.stakeholdersEN)  ? item.stakeholdersEN : item.stakeholders;
+  const objectivesTxt= (isEN && item.objectivesEN)    ? item.objectivesEN   : item.objectives;
+
+  const agHtml = agencyTxt.split('\n').filter(Boolean).map(a=>`<span class="ap">🏛 ${a}</span>`).join('');
+  const shList  = stakeTxt.split('\n').filter(s=>s&&s!=='—');
+  const shHtml  = shList.length ? shList.map(s=>`<span class="sp">${s}</span>`).join('') : '<span style="color:var(--textw);font-size:12px">—</span>';
+
+  const legals  = item.legalInstruments.split('\n').filter(l=>l&&l!=='—');
+  const legHtml = legals.length ? legals.map(l=>{
+    const p = l.match(/(OECD\/LEGAL\/\S+)\s*-\s*(.*)/);
+    return p ? `<div class="legal-item"><div class="legal-code">${p[1]}</div>${p[2]}</div>` : `<div class="legal-item">${l}</div>`;
+  }).join('') : '<div style="color:var(--textw);font-size:12px">—</div>';
+
+  // Questionnaire state card
+  const qState = item.questionnaireStatus;
+  const qCls   = qState==='submitted'?'q-done2':qState==='in_progress'?'q-prog':'q-none';
+  const qLabel = qState==='submitted'?t('qSubmittedLabel'):qState==='in_progress'?t('qInProgLabel'):t('qNoneLabel');
+
+  const ffS = ds(item.factFinding), arS = ds(item.accessionReview);
+
+  function tlc(cls, lbl, date, st) {
+    return `<div class="tlc ${cls}"><div class="tlc-lbl">${lbl}</div><div class="tlc-date">${date}</div><div class="tlc-st">${st}</div></div>`;
+  }
+
+  const dirHtml     = item.directorate  ? `<span class="sp" style="color:var(--navym);font-weight:500">🏢 ${item.directorate}</span>`  : '';
+  const internalHtml = item.internalMech ? `<span class="sp" style="color:#7c3aed;font-weight:500">🔹 ${item.internalMech}</span>` : '';
+  const raHtml   = item.raContact   ? `<span class="sp">${item.raContact}</span>`   : '<span style="color:var(--textw);font-size:12px">—</span>';
+  const nesdcHtml= item.nesdcContact? `<span class="sp">${item.nesdcContact}</span>`: '<span style="color:var(--textw);font-size:12px">—</span>';
+
+  document.getElementById('mBody').innerHTML = `
+    <div class="m-section"><div class="m-lbl">${t('mAgency')}</div><div class="m-content">${agHtml}</div></div>
+    <div class="m-section"><div class="m-lbl">${t('mRAContact')}</div><div class="m-content">${raHtml}</div></div>
+    <div class="m-section"><div class="m-lbl">${t('mNESDC')}</div><div class="m-content">${nesdcHtml}</div></div>
+    ${item.internalMech ? `<div class="m-section"><div class="m-lbl">${t('mInternal')}</div><div class="m-content">${internalHtml}</div></div>` : ''}
+    ${item.directorate ? `<div class="m-section"><div class="m-lbl">${t('mDirectorate')}</div><div class="m-content">${dirHtml}</div></div>` : ''}
+    <div class="m-section"><div class="m-lbl">${t('mStakeholders')}</div><div class="m-content">${shHtml}</div></div>
+    <div class="m-section">
+      <div class="m-lbl">${t('mTimeline')}</div>
+      <div class="tl-grid3">
+        ${tlc(qCls, 'Questionnaire', item.questionnaireDate, qLabel)}
+        ${tlc(ffS,  'Fact-finding Mission', item.factFinding, ffS==='done'?t('done'):ffS==='pending'?t('pending'):t('na'))}
+        ${tlc(arS,  'Accession Review', item.accessionReview, arS==='done'?t('done'):arS==='pending'?t('pending'):t('na'))}
+      </div>
+    </div>
+    <div class="m-section"><div class="m-lbl">${t('mObjectives')}</div><div class="m-content">${objectivesTxt.split('\n').filter(Boolean).map(o=>`<div style="margin-bottom:5px">${o}</div>`).join('')}</div></div>
+    <div class="m-section"><div class="m-lbl">${t('mLegal')}</div><div class="m-content">${legHtml}</div></div>
+    <div class="m-section"><div class="m-lbl">${t('mProgress')}</div><div class="m-content hl" id="mProgressContent">${item.progress.split('\n').filter(Boolean).map(p=>`<div style="margin-bottom:5px">${p}</div>`).join('')}</div></div>
+    ${item.notes?`<div class="m-section"><div class="m-lbl">${t('mNotes')}</div><div class="notes-box" id="mNotesContent">${item.notes.replace(/\n/g,'<br>')}</div></div>`:''}
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+
+  // Option 3: async translate progress + notes via Claude API
+  if (isEN) {
+    const progEl  = document.getElementById('mProgressContent');
+    const notesEl = document.getElementById('mNotesContent');
+
+    if (progEl && item.progress && item.progress !== '—') {
+      progEl.style.opacity = '0.5';
+      translateText(item.id, 'progress', item.progress).then(en => {
+        if (progEl && document.getElementById('modalOverlay').classList.contains('open')) {
+          progEl.innerHTML = en.split('\n').filter(Boolean).map(p=>`<div style="margin-bottom:5px">${p}</div>`).join('');
+          progEl.style.opacity = '1';
+        }
+      });
+    }
+
+    if (notesEl && item.notes && item.notes !== '—') {
+      notesEl.style.opacity = '0.5';
+      translateText(item.id, 'notes', item.notes).then(en => {
+        if (notesEl && document.getElementById('modalOverlay').classList.contains('open')) {
+          notesEl.innerHTML = en.replace(/\n/g,'<br>');
+          notesEl.style.opacity = '1';
+        }
+      });
+    }
+  }
+}
+
+function closeModal(e) { if(e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); document.body.style.overflow=''; }
+
+/* ═══════════════════════════════════════════════════════
+   PRINT FACT SHEET
+═══════════════════════════════════════════════════════ */
+function printFactSheet() {
+  if (!currentItem) return;
+  const item = currentItem;
+  const ffS = ds(item.factFinding), arS = ds(item.accessionReview);
+  // Fact sheet always uses English inputs where available
+  const agencies  = (item.agencyEN || item.agency).split('\n').filter(Boolean);
+  const shList    = (item.stakeholdersEN || item.stakeholders).split('\n').filter(s=>s&&s!=='—');
+  const legals    = item.legalInstruments.split('\n').filter(l=>l&&l!=='—');
+  const objLines  = (item.objectivesEN || item.objectives).split('\n').filter(Boolean);
+  const progLines = item.progress.split('\n').filter(Boolean);
+
+  const legalRows = legals.length ? legals.map((l,i)=>{
+    const p = l.match(/(OECD\/LEGAL\/\S+)\s*-\s*(.*)/);
+    return p?`<tr><td class="n">(${i+1})</td><td><strong class="lc">${p[1]}</strong> ${p[2]}</td></tr>`
+            :`<tr><td class="n">(${i+1})</td><td>${l}</td></tr>`;
+  }).join('') : `<tr><td></td><td style="color:#9ca3af">—</td></tr>`;
+
+  function stRow(lbl, date, colTxt) {
+    return `<tr><td>${lbl}</td><td style="font-weight:700">${date}</td><td style="font-weight:600;color:${colTxt.col}">${colTxt.txt}</td></tr>`;
+  }
+
+  const qCol = item.questionnaireStatus==='submitted'?{col:'#15803d',txt:'Submitted'}:item.questionnaireStatus==='in_progress'?{col:'#b45309',txt:'In Progress'}:{col:'#6b7280',txt:'Not Received'};
+  const ffCol = ffS==='done'?{col:'#15803d',txt:'Completed'}:ffS==='pending'?{col:'#2563a8',txt:'Upcoming'}:{col:'#9ca3af',txt:'N/A'};
+  const arCol = arS==='done'?{col:'#15803d',txt:'Completed'}:arS==='pending'?{col:'#2563a8',txt:'Upcoming'}:{col:'#9ca3af',txt:'N/A'};
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8">
+<title>Fact Sheet — ${item.workingParty}</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Sarabun',sans-serif;color:#111827;font-size:12pt;line-height:1.8;background:#fff}
+  .page{max-width:720px;margin:0 auto;padding:48px 52px}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a3a6b;padding-bottom:10px;margin-bottom:26px}
+  .doc-meta{font-size:8.5pt;text-transform:uppercase;letter-spacing:1.2px;color:#6b7280;line-height:1.7}
+  .oecd-mark{font-size:10pt;font-weight:800;color:#1a3a6b}
+  .title-block{margin-bottom:24px}
+  .clbl{font-size:9pt;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#2563a8;margin-bottom:7px}
+  .mtitle{font-size:17pt;font-weight:800;color:#111827;line-height:1.3}
+  hr{border:none;border-top:1px solid #e5e7eb;margin:20px 0}
+  .section{margin-bottom:22px}
+  .sh{font-size:8.5pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1a3a6b;border-left:3px solid #1a3a6b;padding-left:9px;margin-bottom:11px}
+  .sb{font-size:11.5pt;color:#374151;line-height:1.8;padding-left:12px}
+  table.tlt{width:100%;border-collapse:collapse}
+  table.tlt th{font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#6b7280;text-align:left;padding:6px 14px;border-bottom:1.5px solid #d1d5db}
+  table.tlt td{font-size:11.5pt;padding:8px 14px;border-bottom:1px solid #f3f4f6;color:#111827;vertical-align:middle}
+  table.tlt tr:last-child td{border-bottom:none}
+  table.lt{width:100%;border-collapse:collapse}
+  table.lt td{padding:7px 0;border-bottom:1px solid #f3f4f6;font-size:11pt;color:#374151;vertical-align:top;line-height:1.65}
+  table.lt tr:last-child td{border-bottom:none}
+  .n{color:#9ca3af;font-size:9.5pt;padding-right:10px;white-space:nowrap;vertical-align:top;padding-top:8px}
+  .lc{color:#1a3a6b;font-size:9pt;font-weight:800;font-family:monospace}
+  .notes-block{background:#eff6ff;border-left:3px solid #93c5fd;padding:11px 14px;font-size:11pt;color:#374151;line-height:1.7}
+  .footer{margin-top:38px;padding-top:10px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;font-size:8pt;color:#9ca3af}
+  @media print{body{font-size:11pt}.page{padding:28px 36px}.mtitle{font-size:14pt}}
+</style></head><body>
+<div class="page">
+
+<div class="topbar">
+  <div class="doc-meta" style="font-weight:700;color:#1a3a6b">NESDC · THAILAND</div>
+  <div class="oecd-mark" style="font-weight:400;color:#6b7280;font-size:8.5pt">${(()=>{const n=new Date();return String(n.getDate()).padStart(2,'0')+'/'+String(n.getMonth()+1).padStart(2,'0')+'/'+n.getFullYear();})()} </div>
+</div>
+
+<div class="title-block">
+  <div class="clbl">${item.committee}${item.type==='committee'?' · Committee Level':' · Working Party'}</div>
+  <h1 class="mtitle">${item.workingParty.replace(/\s*[–—-]\s*ระดับคณะกรรมการ/g,'').trim()}</h1>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="sh">Responsible Agency</div>
+  <div class="sb">${agencies.map((a,i)=>`${i+1}. ${a}`).join('<br>')}</div>
+</div>
+
+${item.internalMech ? `<div class="section"><div class="sh">Internal Committee / Task Force</div><div class="sb">${item.internalMech}</div></div>` : ''}
+
+${item.directorate ? `<div class="section"><div class="sh">OECD Directorate</div><div class="sb">${item.directorate}</div></div>` : ''}
+
+${shList.length?`<div class="section"><div class="sh">Stakeholders</div><div class="sb">${shList.map((s,i)=>`${i+1}. ${s}`).join('<br>')}</div></div>`:''}
+
+<div class="section">
+  <div class="sh">Technical Review Timeline</div>
+  <div style="padding-left:12px">
+    <table class="tlt">
+      <thead><tr><th>Stage</th><th>Scheduled Date</th><th>Status</th></tr></thead>
+      <tbody>
+        ${stRow('Questionnaire', item.questionnaireDate, qCol)}
+        ${stRow('Fact-finding Mission', item.factFinding, ffCol)}
+        ${stRow('Accession Review', item.accessionReview, arCol)}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sh">Objectives</div>
+  <div class="sb">${objLines.map(o=>`<p style="margin-bottom:5px">${o}</p>`).join('')}</div>
+</div>
+
+${legals.length?`<div class="section"><div class="sh">Legal Instrument(s)</div><div style="padding-left:12px"><table class="lt"><tbody>${legalRows}</tbody></table></div></div>`:''}
+
+<div class="section">
+  <div class="sh">Current Progress</div>
+  <div class="sb">${progLines.map(p=>`<p style="margin-bottom:5px">${p}</p>`).join('')}</div>
+</div>
+
+${item.notes?`<div class="section"><div class="sh">Notes</div><div style="padding-left:12px"><div class="notes-block">${item.notes.replace(/\n/g,'<br>')}</div></div></div>`:''}
+
+${item.raContact ? `<div class="section"><div class="sh">RA Contact Point</div><div class="sb">${item.raContact}</div></div>` : ''}
+
+${item.nesdcContact ? `<div class="section"><div class="sh">NESDC Contact Point</div><div class="sb">${item.nesdcContact}</div></div>` : ''}
+
+<div class="footer">
+  <span></span>
+  <span>For internal use only</span>
+</div>
+</div></body></html>`);
+  win.document.close();
+  setTimeout(()=>win.print(), 700);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   OVERALL FACT SHEET PRINT
+═══════════════════════════════════════════════════════ */
+function printOverallFactSheet() {
+  const data = liveData;
+
+  const committees = data.filter(d => d.type === 'committee');
+  const wps        = data.filter(d => d.type === 'wp');
+  const nC = committees.length, nW = wps.length;
+  const nTotal = nC + nW;
+
+  const cProg = committees.filter(d=>d.questionnaireStatus==='in_progress').length;
+  const cDone = committees.filter(d=>d.questionnaireStatus==='submitted').length;
+  const wProg = wps.filter(d=>d.questionnaireStatus==='in_progress').length;
+  const wDone = wps.filter(d=>d.questionnaireStatus==='submitted').length;
+  const cFF = committees.filter(d=>{ const dt=parseDate(d.factFinding); return dt&&dt<=TODAY; }).length;
+  const wFF = wps.filter(d=>{ const dt=parseDate(d.factFinding); return dt&&dt<=TODAY; }).length;
+
+  // AD date DD/MM/YYYY
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2,'0');
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const yyyy = now.getFullYear();
+  const todayStr = dd + '/' + mm + '/' + yyyy;
+
+  const qOrder = { submitted:0, in_progress:1, none:2 };
+
+  function qLabel(s) {
+    return s==='submitted' ? 'Submitted' : s==='in_progress' ? 'In Progress' : 'Not Received';
+  }
+  function qColor(s) {
+    return s==='submitted' ? '#15803d' : s==='in_progress' ? '#b45309' : '#6b7280';
+  }
+
+  // Parse accession review date for sorting
+  function arSortKey(item) {
+    const s = (item.accessionReview || '').trim();
+    if (!s || s === '—') return Infinity;
+    const p = s.split('/');
+    if (p.length === 1 && /^\d{4}$/.test(s)) return new Date(parseInt(s), 11, 31).getTime();
+    if (p.length === 2) return new Date(parseInt(p[1]), parseInt(p[0])-1, 1).getTime();
+    if (p.length === 3) return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0])).getTime();
+    return Infinity;
+  }
+
+  // Build groups keyed by committee name
+  const groupNames = [...new Set(data.map(d => d.committee))];
+  const groups = groupNames.map(name => {
+    const cRow  = data.find(d => d.committee === name && d.type === 'committee');
+    const wpRows = data.filter(d => d.committee === name && d.type === 'wp');
+    const anchor = cRow || wpRows[0];
+    return { name, cRow, wpRows, anchor };
+  });
+
+  // Sort groups: 1) Q status of committee anchor, 2) AR date of committee anchor
+  groups.sort((a, b) => {
+    const qA = qOrder[a.anchor?.questionnaireStatus] ?? 3;
+    const qB = qOrder[b.anchor?.questionnaireStatus] ?? 3;
+    if (qA !== qB) return qA - qB;
+    return arSortKey(a.anchor) - arSortKey(b.anchor);
+  });
+
+  // Flat list: committee row first, then its WPs in original sheet order
+  const ordered = [];
+  groups.forEach(g => {
+    if (g.cRow) ordered.push(g.cRow);
+    ordered.push(...g.wpRows);
+  });
+
+  // Thai date formatted as "24 เมษายน 2569"
+  const today = new Date().toLocaleDateString('th-TH', {year:'numeric', month:'long', day:'numeric'});
+
+  function buildRow(item, i) {
+    const name = item.workingParty
+      .replace(/\s*[\u2013\u2014-]\s*ระดับคณะกรรมการ/g, '').trim();
+
+    // Bilingual agency: "Thai Name (EN Name)" per line
+    const thLines = (item.agency||'').split('\n').filter(Boolean);
+    const enLines = (item.agencyEN||'').split('\n').filter(Boolean);
+    const agency = thLines.map((th, idx) => {
+      const th_ = th.replace(/\*$/, '').trim();
+      const en_ = (enLines[idx]||'').replace(/\*$/, '').trim();
+      return en_ ? `${th_}<br><span style="font-size:8.5pt;color:#6b7280">(${en_})</span>` : th_;
+    }).join('<br>') || '—';
+
+    const progress = (item.progress||'').split('\n').filter(Boolean)
+      .map(p=>`<p style="margin:0 0 3px">${p}</p>`).join('') || '—';
+    const isC  = item.type === 'committee';
+    const bg   = isC ? '#eef2f8' : (i%2===0 ? '#ffffff' : '#f8fafc');
+    const fw   = isC ? '700' : '400';
+    const fc   = isC ? '#1a3a6b' : '#111827';
+    const pad  = isC ? '' : 'padding-left:22px;';
+    return `<tr style="background:${bg}">
+      <td style="padding:7px 10px;${pad}border-bottom:1px solid #e5e7eb;font-size:10pt;vertical-align:top;font-weight:${fw};color:${fc}">${name}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:9.5pt;vertical-align:top;color:#374151">${agency}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:9.5pt;vertical-align:top;text-align:center;font-weight:700;color:${qColor(item.questionnaireStatus)}">${qLabel(item.questionnaireStatus)}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:9.5pt;vertical-align:top;text-align:center;color:#374151">${item.factFinding||'—'}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:9.5pt;vertical-align:top;text-align:center;color:#374151">${item.accessionReview||'—'}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;font-size:9.5pt;vertical-align:top;color:#374151">${progress}</td>
+    </tr>`;
+  }
+
+  const tableRows = ordered.map((item, i) => buildRow(item, i)).join('');
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<title>Overall Fact Sheet — Thailand OECD Accession Monitoring Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Sarabun',sans-serif;color:#111827;background:#fff;font-size:11pt;line-height:1.7}
+  .page{max-width:960px;margin:0 auto;padding:40px 48px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1a3a6b;padding-bottom:10px;margin-bottom:22px}
+  .topbar-left{font-size:10pt;font-weight:700;color:#1a3a6b}
+  .topbar-right{font-size:8.5pt;color:#6b7280;text-align:right}
+
+  .doc-title{text-align:center;margin-bottom:20px}
+  .doc-title h1{font-size:15pt;font-weight:800;color:#111827;line-height:1.4}
+  .doc-title .sheet-label{font-size:13pt;font-weight:600;color:#1a3a6b;display:block;margin-top:4px}
+
+  .intro{font-size:11pt;line-height:1.9;color:#1e293b;margin-bottom:22px}
+
+  /* Summary table: 4 rows × 4 cols */
+  .sum-table{width:100%;border-collapse:collapse;margin-bottom:24px;font-size:11pt}
+  .sum-table th{background:#1a3a6b;color:white;padding:9px 14px;font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:center}
+  .sum-table th.left{text-align:left}
+  .sum-table td{padding:9px 14px;border-bottom:1px solid #e5e7eb;vertical-align:middle}
+  .sum-table td.lbl{font-weight:700;color:#374151;font-size:10pt}
+  .sum-table td.num{text-align:center;font-size:15pt;font-weight:800;line-height:1}
+  .sum-table td.total-num{text-align:center;font-size:15pt;font-weight:800;color:#1a3a6b}
+  .sum-table tr.alt{background:#f8fafc}
+  .num-amber{color:#b45309}
+  .num-green{color:#15803d}
+  .num-blue{color:#1d4ed8}
+
+  .section-title{font-size:9pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#1a3a6b;border-left:3px solid #1a3a6b;padding-left:9px;margin-bottom:12px}
+
+  table.detail{width:100%;border-collapse:collapse;font-size:10pt}
+  table.detail thead th{background:#1a3a6b;color:white;padding:8px 10px;font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;text-align:left}
+  table.detail thead th.center{text-align:center}
+
+  .footer{margin-top:24px;padding-top:10px;border-top:1px solid #e5e7eb;text-align:right;font-size:8pt;color:#9ca3af}
+
+  @media print{
+    body{font-size:10pt}
+    .page{padding:20px 28px}
+    table{page-break-inside:auto}
+    tr{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header bar -->
+  <div class="topbar">
+    <div class="topbar-left">NESDC · THAILAND</div>
+    <div class="topbar-right">${todayStr}</div>
+  </div>
+
+  <!-- Title -->
+  <div class="doc-title">
+    <h1>Thailand OECD Accession Monitoring Dashboard</h1>
+    <span class="sheet-label">Overall Fact Sheet</span>
+  </div>
+
+  <!-- Intro -->
+  <p class="intro">Under the current Government, Thailand is pursuing membership to the OECD by B.E. 2571 (2028) to enhance national competitiveness, elevating industrial and service standards to international levels, and driving science, research and innovation diplomacy. These efforts aim to build global confidence, position Thailand within critical global supply chains, and promote the creative economy and Thainess.</p>
+
+  <!-- Summary table: 4 rows × 4 cols (Status × Level) -->
+  <table class="sum-table">
+    <thead>
+      <tr>
+        <th class="left" style="width:34%">Status</th>
+        <th style="width:22%">Committees</th>
+        <th style="width:22%">Working Parties</th>
+        <th style="width:22%">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="lbl">Questionnaire In Progress</td>
+        <td class="num num-amber">${cProg}<span style="font-size:11pt;font-weight:500;color:#9ca3af">/${nC}</span></td>
+        <td class="num num-amber">${wProg}<span style="font-size:11pt;font-weight:500;color:#9ca3af">/${nW}</span></td>
+        <td class="total-num">${cProg+wProg}</td>
+      </tr>
+      <tr class="alt">
+        <td class="lbl">Questionnaire Submitted</td>
+        <td class="num num-green">${cDone}<span style="font-size:11pt;font-weight:500;color:#9ca3af">/${nC}</span></td>
+        <td class="num num-green">${wDone}<span style="font-size:11pt;font-weight:500;color:#9ca3af">/${nW}</span></td>
+        <td class="total-num">${cDone+wDone}</td>
+      </tr>
+      <tr>
+        <td class="lbl">Fact-Finding Mission</td>
+        <td class="num num-blue">${cFF}<span style="font-size:11pt;font-weight:500;color:#9ca3af">/${nC}</span></td>
+        <td class="num num-blue">${wFF}<span style="font-size:11pt;font-weight:500;color:#9ca3af">/${nW}</span></td>
+        <td class="total-num">${cFF+wFF}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Details table -->
+  <div class="section-title">Committees &amp; Working Parties</div>
+  <table class="detail">
+    <thead>
+      <tr>
+        <th style="width:20%">คณะกรรมการ / คณะทำงาน<br><span style="font-weight:400;font-size:7.5pt;opacity:.75">Committee / Working Party</span></th>
+        <th style="width:22%">หน่วยงานรับผิดชอบหลัก<br><span style="font-weight:400;font-size:7.5pt;opacity:.75">Responsible Agency</span></th>
+        <th style="width:10%" class="center">Questionnaire<br>Status</th>
+        <th style="width:8%" class="center">Fact-finding<br>Mission</th>
+        <th style="width:8%" class="center">Accession<br>Review</th>
+        <th style="width:32%">การดำเนินการในปัจจุบัน<br><span style="font-weight:400;font-size:7.5pt;opacity:.75">Current Progress</span></th>
+      </tr>
+    </thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+
+  <!-- Footer -->
+  <div class="footer">For internal use only</div>
+
+</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(()=>win.print(), 700);
+}
+
+
+
+/* ═══════════════════════════════════════════════════════
+   BUILD INLINE EXPAND DETAIL HTML
+═══════════════════════════════════════════════════════ */
+function buildExpandHTML(item) {
+  const isEN = lang === 'en';
+
+  // Agency
+  const agencyTxt = (isEN && item.agencyEN) ? item.agencyEN : item.agency;
+  const agHtml = agencyTxt.split('\n').filter(Boolean)
+    .map(a=>`<span class="exp-pill">🏛 ${a.replace(/\*$/,'')}</span>`).join('');
+
+  // Directorate
+  const dirHtml = item.directorate
+    ? `<span class="exp-sh-pill">🏢 ${item.directorate}</span>` : '';
+  const intHtml = item.internalMech
+    ? `<span class="exp-sh-pill" style="background:#f5f3ff;border-color:#c4b5fd;color:#6d28d9">🔹 ${item.internalMech}</span>` : '';
+
+  // Stakeholders
+  const stakesTxt = (isEN && item.stakeholdersEN) ? item.stakeholdersEN : item.stakeholders;
+  const shList = stakesTxt.split('\n').filter(s=>s&&s!=='—');
+  const shHtml = shList.length
+    ? shList.map(s=>`<span class="exp-sh-pill">${s}</span>`).join('')
+    : '<span style="color:var(--textw);font-size:11px">—</span>';
+
+  // Technical Review Timeline
+  const ffS = ds(item.factFinding), arS = ds(item.accessionReview);
+  function stColor(s,isFF) {
+    if (s==='done')    return '#15803d';
+    if (s==='pending') return '#2563a8';
+    return '#9ca3af';
+  }
+  function stTxt(s,isQ) {
+    if (isQ) {
+      return item.questionnaireStatus==='submitted'?'Submitted'
+            :item.questionnaireStatus==='in_progress'?'In Progress':'Not Received';
+    }
+    return s==='done'?'Completed':s==='pending'?'Upcoming':'N/A';
+  }
+  const tlHtml = `<table class="exp-tl">
+    <thead><tr><th>Stage</th><th>Scheduled Date</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Questionnaire</td><td><strong>${item.questionnaireDate||'—'}</strong></td>
+          <td style="font-weight:700;color:${stColor(null,true)}">${stTxt(null,true)}</td></tr>
+      <tr><td>Fact-finding Mission</td><td><strong>${item.factFinding||'—'}</strong></td>
+          <td style="font-weight:700;color:${stColor(ffS)}">${stTxt(ffS)}</td></tr>
+      <tr><td>Accession Review</td><td><strong>${item.accessionReview||'—'}</strong></td>
+          <td style="font-weight:700;color:${stColor(arS)}">${stTxt(arS)}</td></tr>
+    </tbody></table>`;
+
+  // Objectives
+  const objTxt = (isEN && item.objectivesEN) ? item.objectivesEN : (item.objectives||'');
+  const objHtml = objTxt.split('\n').filter(Boolean)
+    .map(o=>`<div style="margin-bottom:4px">${o}</div>`).join('') || '—';
+
+  // Legal Instruments
+  const legals = (item.legalInstruments||'').split('\n').filter(l=>l&&l!=='—');
+  const legHtml = legals.length ? legals.map(l=>{
+    const p = l.match(/(OECD\/LEGAL\/\S+)\s*-\s*(.*)/);
+    return p ? `<div class="exp-legal"><div class="exp-legal-code">${p[1]}</div>${p[2]}</div>`
+             : `<div class="exp-legal">${l}</div>`;
+  }).join('') : '<span style="color:var(--textw);font-size:11px">—</span>';
+
+  // Current Progress
+  const progHtml = (item.progress||'').split('\n').filter(Boolean)
+    .map(p=>`<div style="margin-bottom:4px">${p}</div>`).join('') || '—';
+
+  // Notes
+  const notesHtml = item.notes
+    ? `<div class="exp-section">
+         <div class="exp-lbl">Notes</div>
+         <div class="exp-val" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 12px">
+           ${item.notes.replace(/\n/g,'<br>')}
+         </div>
+       </div>` : '';
+
+  // RA / NESDC contacts
+  const raHtml = item.raContact
+    ? `<div class="exp-section"><div class="exp-lbl">RA Contact Point</div><div class="exp-val">${item.raContact}</div></div>` : '';
+  const nesdcHtml = item.nesdcContact
+    ? `<div class="exp-section"><div class="exp-lbl">NESDC Contact Point</div><div class="exp-val">${item.nesdcContact}</div></div>` : '';
+
+  return `
+    <div class="exp-section"><div class="exp-lbl">Responsible Agency</div><div class="exp-val">${agHtml}</div></div>
+    ${item.internalMech ? `<div class="exp-section"><div class="exp-lbl">${t('mInternal')}</div><div class="exp-val">${intHtml}</div></div>` : ''}
+    ${item.directorate ? `<div class="exp-section"><div class="exp-lbl">OECD Directorate</div><div class="exp-val">${dirHtml}</div></div>` : ''}
+    ${shList.length ? `<div class="exp-section"><div class="exp-lbl">Stakeholders</div><div class="exp-val">${shHtml}</div></div>` : ''}
+    <div class="exp-section"><div class="exp-lbl">Technical Review Timeline</div>${tlHtml}</div>
+    <div class="exp-section"><div class="exp-lbl">Objectives</div><div class="exp-val">${objHtml}</div></div>
+    <div class="exp-section"><div class="exp-lbl">Legal Instrument(s)</div><div class="exp-val">${legHtml}</div></div>
+    <div class="exp-section"><div class="exp-lbl">Current Progress</div><div class="exp-val hl">${progHtml}</div></div>
+    ${notesHtml}
+    ${raHtml}
+    ${nesdcHtml}
+    <button class="exp-print-btn" onclick="event.stopPropagation();currentItem=liveData.find(d=>d.id===${item.id});printFactSheet()">
+      🖨 Print Fact Sheet
+    </button>`;
+}
+
+/* Toggle expand/collapse for a card */
+function toggleCard(id, event) {
+  if (event) event.stopPropagation();
+  const panel = document.getElementById('expand-' + id);
+  const card  = document.getElementById('card-' + id);
+  if (!panel) return;
+  const isOpen = panel.classList.contains('open');
+  // Close all other open panels first
+  document.querySelectorAll('.card-expand.open, .committee-expand.open').forEach(el => {
+    el.classList.remove('open');
+    const cid = el.id.replace('expand-','');
+    const prev = document.getElementById('card-' + cid);
+    if (prev) { prev.classList.remove('expanded'); prev.classList.remove('has-expand-open'); }
+  });
+  if (!isOpen) {
+    // Build content lazily on first open
+    if (!panel.dataset.built) {
+      const item = liveData.find(d=>d.id===id);
+      if (item) {
+        panel.innerHTML = buildExpandHTML(item);
+        panel.dataset.built = '1';
+        // Tint expand panel to match card colour
+        const pal = cardPalette(stepsFor(item));
+        panel.style.setProperty('--expand-bg', pal.fill);
+        panel.style.setProperty('--expand-bd', pal.border);
+        panel.style.borderColor = pal.border;
+      }
+    }
+    panel.classList.add('open');
+    if (card) card.classList.add('expanded');
+    // For committee headers: add top-only border-radius class
+    if (card && card.classList.contains('committee-hdr')) {
+      card.classList.add('has-expand-open');
+    }
+    // Smooth scroll into view
+    setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}), 50);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   PRESENTATION PRINT — LANDSCAPE
+   Page 1: Summary + Questionnaire progress
+   Page 2+: Committee/WP table
+═══════════════════════════════════════════════════════ */
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModalDirect(); });
+</script>
+<footer style="position:fixed;bottom:0;left:0;right:0;background:#ffffff;border-top:2px solid #e5e7eb;padding:7px 20px;text-align:center;font-family:'Sarabun',sans-serif;font-size:11px;font-weight:500;color:#9ca3af;letter-spacing:0.5px;z-index:99;box-shadow:0 -1px 6px rgba(0,0,0,0.06);">
+  <span style="color:#c0392b;font-weight:700">For internal use only</span> &nbsp;·&nbsp; ใช้ภายในเท่านั้น
+</footer>
+<style>
+  .main { padding-bottom: 44px; } /* push content above fixed footer */
+</style>
+</body>
+</html>
